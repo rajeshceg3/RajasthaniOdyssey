@@ -142,7 +142,7 @@
             margin-bottom: 2rem;
             transform: translateY(20px);
             opacity: 0;
-            transition: transform 1s var(--transition-curve), opacity 1s var(--transition-curve);
+            transition: all 1s var(--transition-curve);
         }
         .chapter.active .chapter-title {
             transform: translateY(0);
@@ -181,8 +181,13 @@
             transform-origin: left;
             transition: transform 0.6s var(--transition-curve);
         }
-        .landmark:hover:after {
+        .landmark:hover:after, .landmark:focus:after {
             transform: scaleX(1);
+        }
+
+        .landmark:focus, #sound-toggle:focus, .close-btn:focus {
+            outline: 2px solid var(--accent-color);
+            outline-offset: 4px;
         }
         
         /* The Artisan's Hand */
@@ -335,6 +340,65 @@
             /* In a real app, you would drag from this to create a thread. */
             cursor: grab;
         }
+
+        .scroll-indicator {
+            position: fixed;
+            bottom: 50px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 100px;
+            height: 20px;
+            z-index: 400;
+            opacity: 0.5;
+        }
+
+        .scroll-indicator::before, .scroll-indicator::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            width: 10px;
+            height: 10px;
+            border-style: solid;
+            border-color: var(--soft-grey-ui);
+            transform: translateY(-50%) rotate(45deg);
+        }
+
+        .scroll-indicator::before {
+            left: 0;
+            border-width: 0 2px 2px 0;
+            animation: scroll-right 2s infinite;
+        }
+
+        .scroll-indicator::after {
+            right: 0;
+            border-width: 2px 0 0 2px;
+            animation: scroll-left 2s infinite;
+        }
+
+        @keyframes scroll-right {
+            0% { transform: translateY(-50%) rotate(45deg) translateX(0); opacity: 0; }
+            50% { opacity: 1; }
+            100% { transform: translateY(-50%) rotate(45deg) translateX(10px); opacity: 0; }
+        }
+
+        @keyframes scroll-left {
+            0% { transform: translateY(-50%) rotate(45deg) translateX(0); opacity: 0; }
+            50% { opacity: 1; }
+            100% { transform: translateY(-50%) rotate(45deg) translateX(-10px); opacity: 0; }
+        }
+
+        .scroll-toggle {
+            position: fixed;
+            bottom: 120px;
+            right: 40px;
+            z-index: 400;
+        }
+
+        .scroll-jack-label {
+            font-size: 0.8rem;
+            color: var(--soft-grey-ui);
+            font-weight: 500;
+        }
     </style>
 </head>
 <body>
@@ -349,7 +413,7 @@
     <main id="maru-canvas">
         <div class="chapters-container" id="chapters-container">
             <!-- Chapter 1: Jaipur -->
-            <section class="chapter" data-accent-color="#E57373" data-ambient-sound-src="">
+            <section class="chapter" data-accent-color="#E57373" data-ambient-sound-src="https://assets.codepen.io/134442/jaipur.mp3">
                 <div class="bg-image" style="background-image: url('https://images.unsplash.com/photo-1617153257577-476c24a64b2a?auto=format&fit=crop&w=1920&q=80');"></div>
                 <div class="chapter-content">
                     <h1 class="chapter-title">Jaipur<br>The Rose</h1>
@@ -359,7 +423,7 @@
             </section>
 
             <!-- Chapter 2: Jodhpur -->
-            <section class="chapter" data-accent-color="#4FC3F7" data-ambient-sound-src="">
+            <section class="chapter" data-accent-color="#4FC3F7" data-ambient-sound-src="https://assets.codepen.io/134442/jodhpur.mp3">
                 <div class="bg-image" style="background-image: url('https://images.unsplash.com/photo-1567215272332-90117f77a8f7?auto=format&fit=crop&w=1920&q=80');"></div>
                 <div class="chapter-content">
                     <h1 class="chapter-title">Jodhpur<br>The Indigo</h1>
@@ -369,7 +433,7 @@
             </section>
 
             <!-- Chapter 3: Jaisalmer -->
-            <section class="chapter" data-accent-color="#FFCA28" data-ambient-sound-src="">
+            <section class="chapter" data-accent-color="#FFCA28" data-ambient-sound-src="https://assets.codepen.io/134442/jaisalmer.mp3">
                 <div class="bg-image" style="background-image: url('https://images.unsplash.com/photo-1545229763-834c9f792d41?auto=format&fit=crop&w=1920&q=80');"></div>
                 <div class="chapter-content">
                     <h1 class="chapter-title">Jaisalmer<br>The Golden</h1>
@@ -379,7 +443,7 @@
             </section>
 
             <!-- Chapter 4: Udaipur -->
-            <section class="chapter" data-accent-color="#CFD8DC" data-ambient-sound-src="">
+            <section class="chapter" data-accent-color="#CFD8DC" data-ambient-sound-src="https://assets.codepen.io/134442/udaipur.mp3">
                 <div class="bg-image" style="background-image: url('https://images.unsplash.com/photo-1596374071936-a57c2cb0b82a?auto=format&fit=crop&w=1920&q=80');"></div>
                 <div class="chapter-content">
                     <h1 class="chapter-title">Udaipur<br>The White</h1>
@@ -389,7 +453,7 @@
             </section>
             
             <!-- Chapter 5: The Thar -->
-            <section class="chapter" data-accent-color="#D7CCC8" data-ambient-sound-src="">
+            <section class="chapter" data-accent-color="#D7CCC8" data-ambient-sound-src="https://assets.codepen.io/134442/thar.mp3">
                 <div class="bg-image" style="background-image: url('https://images.unsplash.com/photo-1628892945281-c17543884b23?auto=format&fit=crop&w=1920&q=80');"></div>
                 <div class="chapter-content">
                     <h1 class="chapter-title">The Thar<br>The Silence</h1>
@@ -400,7 +464,7 @@
         </div>
 
         <!-- Shared UI Elements -->
-        <div class="artisan-hand" title="The Artisan's Hand">
+        <div class="artisan-hand" title="The Artisan's Hand" tabindex="0">
              <video src="https://assets.codepen.io/134442/potter.mp4" autoplay loop muted playsinline></video>
         </div>
 
@@ -417,6 +481,11 @@
         <div id="thread-timeline">
             <div class="thread-guide"></div>
             <span class="thread-guide-text">YOUR THREAD</span>
+        </div>
+        <div class="scroll-indicator"></div>
+        <div class="scroll-toggle">
+            <input type="checkbox" id="scroll-jack-toggle" class="scroll-jack-toggle">
+            <label for="scroll-jack-toggle" class="scroll-jack-label">Enable Smooth Scroll</label>
         </div>
     </main>
 
@@ -456,20 +525,28 @@
         
         // --- SECTION 2: THE UNVEILING SEQUENCE ---
         // A precisely timed ceremony.
-        setTimeout(() => {
-            unveiling.querySelector('.word').style.animationPlayState = 'running';
-        }, 500);
+        let unveilingAnimation;
 
-        setTimeout(() => {
-            sarangiNote.volume = 0.5;
-            sarangiNote.play();
-        }, 2000);
-
-        setTimeout(() => {
+        function skipUnveiling() {
+            clearTimeout(unveilingAnimation);
             unveiling.classList.add('hidden');
             maruCanvas.classList.add('visible');
-            chapters[0].classList.add('active'); // Activate the first chapter
-        }, 5500);
+            chapters[0].classList.add('active');
+            unveiling.removeEventListener('click', skipUnveiling);
+        }
+
+        unveiling.addEventListener('click', skipUnveiling);
+
+        unveilingAnimation = setTimeout(() => {
+            unveiling.querySelector('.word').style.animationPlayState = 'running';
+            unveilingAnimation = setTimeout(() => {
+                sarangiNote.volume = 0.5;
+                sarangiNote.play();
+                unveilingAnimation = setTimeout(() => {
+                    skipUnveiling();
+                }, 3500);
+            }, 2000);
+        }, 500);
 
         // --- SECTION 3: THE HORIZONTAL SCROLL ---
         // We hijack the crude scroll wheel to conduct a symphony of motion.
@@ -502,37 +579,85 @@
             });
         }
         
+        const scrollJackToggle = document.getElementById('scroll-jack-toggle');
+        let isScrollJackEnabled = false;
+
+        scrollJackToggle.addEventListener('change', () => {
+            isScrollJackEnabled = scrollJackToggle.checked;
+            if (isScrollJackEnabled) {
+                document.body.style.overflow = 'hidden';
+            } else {
+                document.body.style.overflow = 'auto';
+            }
+        });
+
         window.addEventListener('wheel', (e) => {
+            if (isScrollJackEnabled) {
+                if (isScrolling) return;
+                if (e.deltaY > 50 && currentChapter < numChapters - 1) {
+                    goToChapter(currentChapter + 1);
+                } else if (e.deltaY < -50 && currentChapter > 0) {
+                    goToChapter(currentChapter - 1);
+                }
+            }
+        });
+
+        window.addEventListener('keydown', (e) => {
             if (isScrolling) return;
-            if (e.deltaY > 50 && currentChapter < numChapters - 1) {
+            if (e.key === 'ArrowRight' && currentChapter < numChapters - 1) {
                 goToChapter(currentChapter + 1);
-            } else if (e.deltaY < -50 && currentChapter > 0) {
+            } else if (e.key === 'ArrowLeft' && currentChapter > 0) {
                 goToChapter(currentChapter - 1);
             }
         });
         
         // --- SECTION 4: THE DETAIL VIEW INTERACTION ---
         // A gentle zoom, not a jarring jump. We delve deeper into the canvas.
+        function openDetailView(title, description) {
+            detailTitle.textContent = title;
+            detailDescription.textContent = description;
+            detailView.classList.add('visible');
+            closeDetailBtn.focus();
+        }
+
+        function closeDetailView() {
+            detailView.classList.remove('visible');
+            // Return focus to the element that opened the detail view
+            if (document.activeElement) {
+                document.activeElement.blur();
+            }
+        }
+
         landmarks.forEach(landmark => {
+            landmark.setAttribute('tabindex', '0');
             landmark.addEventListener('click', (e) => {
                 e.preventDefault();
-                const title = landmark.dataset.title;
-                const description = landmark.dataset.description;
-                
-                detailTitle.textContent = title;
-                detailDescription.textContent = description;
-                
-                detailView.classList.add('visible');
+                openDetailView(landmark.dataset.title, landmark.dataset.description);
+            });
+            landmark.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter') {
+                    openDetailView(landmark.dataset.title, landmark.dataset.description);
+                }
             });
         });
 
-        closeDetailBtn.addEventListener('click', () => {
-            detailView.classList.remove('visible');
+        closeDetailBtn.setAttribute('tabindex', '0');
+        closeDetailBtn.addEventListener('click', closeDetailView);
+        closeDetailBtn.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+                closeDetailView();
+            }
         });
 
         detailView.addEventListener('click', (e) => {
             if (e.target === detailView) {
-                detailView.classList.remove('visible');
+                closeDetailView();
+            }
+        });
+
+        window.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape' && detailView.classList.contains('visible')) {
+                closeDetailView();
             }
         });
         
@@ -542,8 +667,33 @@
         const soundIconOn = document.getElementById('sound-icon-on');
         const soundIconOff = document.getElementById('sound-icon-off');
         let isSoundOn = false;
-        // NOTE: Ambient sound files are not linked to keep the demo simple. In a real build,
-        // this would manage multiple <audio> elements, fading between them.
+        const ambientSounds = chapters.map(chapter => {
+            const src = chapter.dataset.ambientSoundSrc;
+            return src ? new Audio(src) : null;
+        });
+
+        function playCurrentAmbientSound() {
+            if (isSoundOn) {
+                ambientSounds.forEach((sound, index) => {
+                    if (sound) {
+                        if (index === currentChapter) {
+                            sound.loop = true;
+                            sound.play();
+                        } else {
+                            sound.pause();
+                        }
+                    }
+                });
+            }
+        }
+
+        function stopAllAmbientSounds() {
+            ambientSounds.forEach(sound => {
+                if (sound) {
+                    sound.pause();
+                }
+            });
+        }
 
         soundToggle.addEventListener('click', () => {
             isSoundOn = !isSoundOn;
@@ -551,14 +701,44 @@
                 soundIconOn.style.display = 'block';
                 soundIconOff.style.display = 'none';
                 soundToggle.title = 'Mute';
-                // Logic to play ambient sound for the current chapter would go here.
+                playCurrentAmbientSound();
             } else {
                 soundIconOn.style.display = 'none';
                 soundIconOff.style.display = 'block';
                 soundToggle.title = 'Listen';
-                // Logic to stop all ambient sounds would go here.
+                stopAllAmbientSounds();
             }
         });
+
+        // Add this to the goToChapter function
+        function goToChapter(index) {
+            if (isScrolling) return;
+            isScrolling = true;
+
+            // Deactivate all chapters
+            chapters.forEach(ch => ch.classList.remove('active'));
+
+            gsap.to(container, {
+                x: -index * window.innerWidth,
+                duration: 1.5,
+                ease: 'power4.inOut',
+                onComplete: () => {
+                    isScrolling = false;
+                    currentChapter = index;
+                    // Activate the current chapter's content animations
+                    chapters[currentChapter].classList.add('active');
+                    playCurrentAmbientSound();
+                }
+            });
+
+            // Update the Accent Color
+            const newColor = chapters[index].dataset.accentColor;
+            gsap.to(':root', {
+                '--accent-color': newColor,
+                duration: 1.2,
+                ease: 'power2.out'
+            });
+        }
     });
     </script>
 </body>
