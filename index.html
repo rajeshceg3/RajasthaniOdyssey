@@ -419,6 +419,8 @@
                     <h1 class="chapter-title">Jaipur<br>The Rose</h1>
                     <p class="chapter-description">Born from a Maharaja's vision of welcome, every wall holds the color of the dawn. A city not built, but blushed into existence.</p>
                     <a class="landmark" data-title="Hawa Mahal" data-description="Not a palace, but a facade. A thousand windows for a thousand eyes to watch the world unseen. A screen of wind and sandstone.">Explore Hawa Mahal</a>
+                    <a class="landmark" data-title="Amber Fort" data-description="A majestic fort-palace of red sandstone and marble, a testament to Rajput grandeur.">Visit Amber Fort</a>
+                    <a class="landmark" data-title="City Palace" data-description="A sprawling complex of courtyards, gardens, and buildings, the heart of the old city.">Tour the City Palace</a>
                 </div>
             </section>
 
@@ -429,6 +431,8 @@
                     <h1 class="chapter-title">Jodhpur<br>The Indigo</h1>
                     <p class="chapter-description">A cascade of blue, spilling down the rock from the feet of Mehrangarh. A color to cool the sun, a refuge for the sky.</p>
                     <a class="landmark pullable-element" data-title="Mehrangarh Fort" data-description="It does not soar. It erupts from the rock, an extension of the earth, built by giants and finished by the sun.">Discover Mehrangarh</a>
+                    <a class="landmark" data-title="Jaswant Thada" data-description="A serene marble cenotaph, a memorial to Maharaja Jaswant Singh II.">Reflect at Jaswant Thada</a>
+                    <a class="landmark" data-title="Umaid Bhawan Palace" data-description="A magnificent palace, part hotel, part museum, and part royal residence.">Experience Umaid Bhawan</a>
                 </div>
             </section>
 
@@ -439,6 +443,8 @@
                     <h1 class="chapter-title">Jaisalmer<br>The Golden</h1>
                     <p class="chapter-description">A mirage made real. A sandcastle built to withstand centuries, glowing with the captured light of a desert noon.</p>
                     <a class="landmark pullable-element" data-title="The Living Fort" data-description="Within these golden walls, life continues as it has for ages. Shops, homes, and temples hum with a quiet, resilient energy.">Walk the Ramparts</a>
+                    <a class="landmark" data-title="Patwon Ki Haveli" data-description="A cluster of five havelis, a masterpiece of intricate architecture.">Admire the Havelis</a>
+                    <a class="landmark" data-title="Sam Sand Dunes" data-description="Experience the magic of the desert with a camel safari on the golden sands.">Ride the Dunes</a>
                 </div>
             </section>
 
@@ -449,6 +455,8 @@
                     <h1 class="chapter-title">Udaipur<br>The White</h1>
                     <p class="chapter-description">A city of marble and water, where palaces seem to float on the lake's surface. A dream reflected in the calm of Pichola.</p>
                     <a class="landmark" data-title="Lake Pichola" data-description="The heart of Udaipur. By day, it is a mirror for the sun; by night, a canvas for the stars and the lit-up palaces.">Drift on the Lake</a>
+                    <a class="landmark" data-title="City Palace of Udaipur" data-description="A majestic palace complex, a blend of Rajasthani and Mughal architecture.">Explore the Palace</a>
+                    <a class="landmark" data-title="Jag Mandir" data-description="A palace built on an island in Lake Pichola, a place of tranquil beauty.">Visit Jag Mandir</a>
                 </div>
             </section>
             
@@ -459,6 +467,20 @@
                     <h1 class="chapter-title">The Thar<br>The Silence</h1>
                     <p class="chapter-description">The great emptiness, where the land is sculpted by wind alone. Here, the horizon is the only destination, and the silence is the loudest sound.</p>
                     <a class="landmark pullable-element" data-title="The Dunes" data-description="An ocean of sand, ever-changing, ever-still. To see the sun rise here is to witness the birth of the world.">Witness the Dawn</a>
+                    <a class="landmark" data-title="Desert National Park" data-description="A vast expanse of sand and rock, home to a unique ecosystem.">Explore the Park</a>
+                    <a class="landmark" data-title="Khuri Village" data-description="Experience the traditional lifestyle of the desert people in this charming village.">Visit Khuri</a>
+                </div>
+            </section>
+
+            <!-- Chapter 6: Pushkar -->
+            <section class="chapter" data-accent-color="#FFAB91" data-ambient-sound-src="https://assets.codepen.io/134442/pushkar.mp3">
+                <div class="bg-image" style="background-image: url('https://images.unsplash.com/photo-1587224234288-8b3681d93549?auto=format&fit=crop&w=1920&q=80');"></div>
+                <div class="chapter-content">
+                    <h1 class="chapter-title">Pushkar<br>The Holy</h1>
+                    <p class="chapter-description">A sacred town on the shores of a holy lake, a place of pilgrimage and faith.</p>
+                    <a class="landmark" data-title="Pushkar Lake" data-description="A sacred lake surrounded by 52 ghats, where pilgrims come to bathe and pray.">Experience the Lake</a>
+                    <a class="landmark" data-title="Brahma Temple" data-description="One of the few temples in the world dedicated to Lord Brahma, the creator.">Visit the Temple</a>
+                    <a class="landmark" data-title="Savitri Temple" data-description="A temple dedicated to Brahma's wife, offering panoramic views of the town.">Climb to Savitri</a>
                 </div>
             </section>
         </div>
@@ -520,6 +542,7 @@
         // We will add sound controls later if the philosophy demands it. For now, silence.
 
         const numChapters = chapters.length;
+        container.style.width = `${numChapters * 100}%`;
         let currentChapter = 0;
         let isScrolling = false;
         
@@ -628,7 +651,8 @@
             }
         }
 
-        landmarks.forEach(landmark => {
+        const allLandmarks = document.querySelectorAll('.landmark');
+        allLandmarks.forEach(landmark => {
             landmark.setAttribute('tabindex', '0');
             landmark.addEventListener('click', (e) => {
                 e.preventDefault();
