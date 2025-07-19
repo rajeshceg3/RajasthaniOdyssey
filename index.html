@@ -1,0 +1,565 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Maru</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@300;400;500&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.2/dist/gsap.min.js"></script>
+
+    <style>
+        /*
+            Jony Ive: The Philosophy of Form
+
+            1.  The Canvas: The body is our single, seamless canvas. We forbid the profane vertical scrollbar. 
+                The background is not white; it is #FDFBF5, "Canvas White". It is the color of sun-bleached linen. Warm, soft, organic.
+
+            2.  Typography: A single, humanist typeface, "Manrope". It is our stand-in for the custom "Aravalli Sans". 
+                Hierarchy is achieved through weight and opacity, never through vulgar boldness or brash color.
+
+            3.  The Palette: The UI is relentlessly monochromatic. Color is reserved for content. It is the soul of the place.
+                We use CSS variables (--accent-color) as a vessel, which JavaScript will fill with the essence of each city.
+
+            4.  Motion: Motion is not a gimmick. It communicates physicality. Every transition has weight, inertia, and a natural easing.
+                It is never abrupt. We use GSAP, a tool of precision, to craft this digital physics.
+        */
+
+        :root {
+            --canvas-white: #FDFBF5;
+            --charcoal-text: #33312E;
+            --soft-grey-ui: #A8A5A0;
+            --accent-color: #E57373; /* Jaipur's Rose Quartz, the default */
+            --transition-curve: cubic-bezier(0.65, 0, 0.35, 1);
+            --transition-duration: 0.8s;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        html, body {
+            width: 100%;
+            height: 100%;
+            overflow: hidden; /* No scrollbars. We control the movement. */
+            background-color: var(--canvas-white);
+            font-family: 'Manrope', sans-serif;
+            color: var(--charcoal-text);
+        }
+
+        /* CHAPTER 1: THE UNVEILING */
+        .unveiling {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: #000;
+            z-index: 1000;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            pointer-events: none;
+            transition: opacity 2s var(--transition-curve);
+        }
+
+        .unveiling.hidden {
+            opacity: 0;
+        }
+
+        .unveiling .word {
+            font-size: 5rem;
+            font-weight: 300;
+            color: var(--canvas-white);
+            opacity: 0;
+            transform: scale(0.9);
+            /* This animation simulates the sand coalescing and then blowing away. */
+            animation: unveil-sequence 6s forwards; 
+            animation-timing-function: var(--transition-curve);
+        }
+
+        @keyframes unveil-sequence {
+            0% { opacity: 0; transform: scale(0.9); }
+            30% { opacity: 1; transform: scale(1); } /* The word appears */
+            70% { opacity: 1; transform: scale(1); } /* It holds, allowing the sound to resonate */
+            100% { opacity: 0; transform: scale(1.1); } /* It dissipates */
+        }
+
+        /* CHAPTER 2: THE CANVAS & ITS CHAPTERS */
+        #maru-canvas {
+            width: 100%;
+            height: 100%;
+            position: relative;
+            opacity: 0;
+            transition: opacity 1s var(--transition-curve) 5.5s; /* Fade in after unveiling */
+        }
+        #maru-canvas.visible {
+            opacity: 1;
+        }
+        
+        .chapters-container {
+            display: flex;
+            width: 500%; /* 100% for each of the 5 chapters */
+            height: 100%;
+            position: absolute;
+            top: 0;
+            left: 0;
+        }
+
+        .chapter {
+            width: 100vw;
+            height: 100vh;
+            position: relative;
+            display: flex;
+            align-items: center;
+            padding: 0 8vw;
+        }
+
+        .bg-image {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-size: cover;
+            background-position: center;
+            z-index: -1;
+            /* The subtle dimming allows text to be legible without sacrificing the image's power. */
+            filter: brightness(0.9);
+        }
+
+        .chapter-content {
+            max-width: 450px;
+        }
+        
+        .chapter-title {
+            font-size: 5rem;
+            font-weight: 300;
+            line-height: 1.1;
+            margin-bottom: 2rem;
+            transform: translateY(20px);
+            opacity: 0;
+            transition: transform 1s var(--transition-curve), opacity 1s var(--transition-curve);
+        }
+        .chapter.active .chapter-title {
+            transform: translateY(0);
+            opacity: 1;
+        }
+
+        .chapter-description {
+            font-size: 1.1rem;
+            font-weight: 400;
+            line-height: 1.6;
+            color: var(--charcoal-text);
+            opacity: 0.8;
+            margin-bottom: 2.5rem;
+        }
+
+        .landmark {
+            display: inline-block;
+            font-size: 1.2rem;
+            font-weight: 500;
+            text-decoration: none;
+            color: var(--charcoal-text);
+            padding-bottom: 4px;
+            position: relative;
+            cursor: pointer;
+            transition: color 0.4s var(--transition-curve);
+        }
+        .landmark:after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 1px;
+            background-color: var(--accent-color);
+            transform: scaleX(0);
+            transform-origin: left;
+            transition: transform 0.6s var(--transition-curve);
+        }
+        .landmark:hover:after {
+            transform: scaleX(1);
+        }
+        
+        /* The Artisan's Hand */
+        .artisan-hand {
+            position: fixed;
+            bottom: 40px;
+            right: 120px;
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background: var(--soft-grey-ui);
+            cursor: pointer;
+            overflow: hidden;
+            transition: transform 0.5s var(--transition-curve);
+        }
+        .artisan-hand:hover {
+            transform: scale(1.1);
+        }
+        .artisan-hand video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            opacity: 0;
+            transition: opacity 0.5s var(--transition-curve);
+        }
+        .artisan-hand:hover video {
+            opacity: 1;
+        }
+        
+        /* The Sound Toggle */
+        #sound-toggle {
+            position: fixed;
+            bottom: 40px;
+            right: 40px;
+            width: 50px;
+            height: 50px;
+            background-color: transparent;
+            border: 1px solid var(--soft-grey-ui);
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transition: background-color 0.4s var(--transition-curve);
+        }
+        #sound-toggle:hover {
+            background-color: rgba(0,0,0,0.05);
+        }
+        #sound-toggle svg {
+            width: 20px;
+            height: 20px;
+            stroke: var(--charcoal-text);
+            stroke-width: 1.5;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+            fill: none;
+        }
+
+        /* CHAPTER 3: THE DETAIL VIEW (MODAL) */
+        #detail-view {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-color: rgba(253, 251, 245, 0.7); /* Translucent Canvas White */
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            z-index: 500;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity var(--transition-duration) var(--transition-curve);
+        }
+        #detail-view.visible {
+            opacity: 1;
+            pointer-events: auto;
+        }
+        
+        .detail-content {
+            background: var(--canvas-white);
+            padding: 4rem;
+            max-width: 600px;
+            text-align: center;
+            border-radius: 4px; /* A subtle radius, honoring precision. */
+            box-shadow: 0 30px 60px rgba(0,0,0,0.12);
+            transform: scale(0.95);
+            transition: transform var(--transition-duration) var(--transition-curve);
+        }
+        #detail-view.visible .detail-content {
+            transform: scale(1);
+        }
+        #detail-view h2 {
+            font-weight: 400;
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+        }
+        #detail-view p {
+            font-weight: 300;
+            line-height: 1.7;
+            font-size: 1.1rem;
+            margin-bottom: 2rem;
+            opacity: 0.8;
+        }
+        #detail-view .close-btn {
+            font-size: 1rem;
+            font-weight: 500;
+            color: var(--accent-color);
+            cursor: pointer;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        /* CHAPTER 4: YOUR THREAD (THE ITINERARY) */
+        /*
+            A full implementation of the 'drag-a-thread' concept is a mini-application in itself,
+            requiring complex SVG path manipulation via JavaScript. This is a visual placeholder
+            to communicate the design intent. It feels like a part of the core object, not a bolted-on feature.
+        */
+        #thread-timeline {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 100px;
+            background: linear-gradient(to top, rgba(253, 251, 245, 1), rgba(253, 251, 245, 0));
+            z-index: 400;
+            pointer-events: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .thread-guide {
+            border-top: 1px solid var(--soft-grey-ui);
+            width: 80%;
+            position: absolute;
+            bottom: 40px;
+            opacity: 0.5;
+        }
+        .thread-guide-text {
+            position: absolute;
+            bottom: 15px;
+            font-size: 0.8rem;
+            color: var(--soft-grey-ui);
+            font-weight: 500;
+        }
+        .pullable-element {
+            /* In a real app, you would drag from this to create a thread. */
+            cursor: grab;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- The Unveiling: A moment of quiet anticipation. -->
+    <div class="unveiling" id="unveiling">
+        <h1 class="word">मरु</h1>
+        <audio id="sarangi-note" src="https://assets.codepen.io/134442/sarangi.mp3" preload="auto"></audio>
+    </div>
+
+    <!-- The Main Canvas -->
+    <main id="maru-canvas">
+        <div class="chapters-container" id="chapters-container">
+            <!-- Chapter 1: Jaipur -->
+            <section class="chapter" data-accent-color="#E57373" data-ambient-sound-src="">
+                <div class="bg-image" style="background-image: url('https://images.unsplash.com/photo-1617153257577-476c24a64b2a?auto=format&fit=crop&w=1920&q=80');"></div>
+                <div class="chapter-content">
+                    <h1 class="chapter-title">Jaipur<br>The Rose</h1>
+                    <p class="chapter-description">Born from a Maharaja's vision of welcome, every wall holds the color of the dawn. A city not built, but blushed into existence.</p>
+                    <a class="landmark" data-title="Hawa Mahal" data-description="Not a palace, but a facade. A thousand windows for a thousand eyes to watch the world unseen. A screen of wind and sandstone.">Explore Hawa Mahal</a>
+                </div>
+            </section>
+
+            <!-- Chapter 2: Jodhpur -->
+            <section class="chapter" data-accent-color="#4FC3F7" data-ambient-sound-src="">
+                <div class="bg-image" style="background-image: url('https://images.unsplash.com/photo-1567215272332-90117f77a8f7?auto=format&fit=crop&w=1920&q=80');"></div>
+                <div class="chapter-content">
+                    <h1 class="chapter-title">Jodhpur<br>The Indigo</h1>
+                    <p class="chapter-description">A cascade of blue, spilling down the rock from the feet of Mehrangarh. A color to cool the sun, a refuge for the sky.</p>
+                    <a class="landmark pullable-element" data-title="Mehrangarh Fort" data-description="It does not soar. It erupts from the rock, an extension of the earth, built by giants and finished by the sun.">Discover Mehrangarh</a>
+                </div>
+            </section>
+
+            <!-- Chapter 3: Jaisalmer -->
+            <section class="chapter" data-accent-color="#FFCA28" data-ambient-sound-src="">
+                <div class="bg-image" style="background-image: url('https://images.unsplash.com/photo-1545229763-834c9f792d41?auto=format&fit=crop&w=1920&q=80');"></div>
+                <div class="chapter-content">
+                    <h1 class="chapter-title">Jaisalmer<br>The Golden</h1>
+                    <p class="chapter-description">A mirage made real. A sandcastle built to withstand centuries, glowing with the captured light of a desert noon.</p>
+                    <a class="landmark pullable-element" data-title="The Living Fort" data-description="Within these golden walls, life continues as it has for ages. Shops, homes, and temples hum with a quiet, resilient energy.">Walk the Ramparts</a>
+                </div>
+            </section>
+
+            <!-- Chapter 4: Udaipur -->
+            <section class="chapter" data-accent-color="#CFD8DC" data-ambient-sound-src="">
+                <div class="bg-image" style="background-image: url('https://images.unsplash.com/photo-1596374071936-a57c2cb0b82a?auto=format&fit=crop&w=1920&q=80');"></div>
+                <div class="chapter-content">
+                    <h1 class="chapter-title">Udaipur<br>The White</h1>
+                    <p class="chapter-description">A city of marble and water, where palaces seem to float on the lake's surface. A dream reflected in the calm of Pichola.</p>
+                    <a class="landmark" data-title="Lake Pichola" data-description="The heart of Udaipur. By day, it is a mirror for the sun; by night, a canvas for the stars and the lit-up palaces.">Drift on the Lake</a>
+                </div>
+            </section>
+            
+            <!-- Chapter 5: The Thar -->
+            <section class="chapter" data-accent-color="#D7CCC8" data-ambient-sound-src="">
+                <div class="bg-image" style="background-image: url('https://images.unsplash.com/photo-1628892945281-c17543884b23?auto=format&fit=crop&w=1920&q=80');"></div>
+                <div class="chapter-content">
+                    <h1 class="chapter-title">The Thar<br>The Silence</h1>
+                    <p class="chapter-description">The great emptiness, where the land is sculpted by wind alone. Here, the horizon is the only destination, and the silence is the loudest sound.</p>
+                    <a class="landmark pullable-element" data-title="The Dunes" data-description="An ocean of sand, ever-changing, ever-still. To see the sun rise here is to witness the birth of the world.">Witness the Dawn</a>
+                </div>
+            </section>
+        </div>
+
+        <!-- Shared UI Elements -->
+        <div class="artisan-hand" title="The Artisan's Hand">
+             <video src="https://assets.codepen.io/134442/potter.mp4" autoplay loop muted playsinline></video>
+        </div>
+
+        <button id="sound-toggle" title="Listen">
+            <svg id="sound-icon-off" viewBox="0 0 24 24">
+                <line x1="1" y1="1" x2="23" y2="23"></line>
+                <path d="M9 9v3a3 3 0 0 0 5.12 2.12M15 9.34V4a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v10"></path>
+            </svg>
+            <svg id="sound-icon-on" style="display: none;" viewBox="0 0 24 24">
+                <path d="M11 5L6 9H2v6h4l5 4V5z"></path><path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path>
+            </svg>
+        </button>
+
+        <div id="thread-timeline">
+            <div class="thread-guide"></div>
+            <span class="thread-guide-text">YOUR THREAD</span>
+        </div>
+    </main>
+
+    <!-- The Detail View Layer -->
+    <div id="detail-view">
+        <div class="detail-content">
+            <h2 id="detail-title"></h2>
+            <p id="detail-description"></p>
+            <span class="close-btn" id="close-detail-btn">CLOSE</span>
+        </div>
+    </div>
+
+
+    <script>
+    document.addEventListener('DOMContentLoaded', () => {
+        // Jony Ive: The Digital Craftsman
+        // The script is not a series of commands, but the nervous system of the object. 
+        // It gives life to the form.
+
+        // --- SECTION 1: ELEMENT REFERENCES ---
+        // We gather our materials before we begin construction.
+        const unveiling = document.getElementById('unveiling');
+        const sarangiNote = document.getElementById('sarangi-note');
+        const maruCanvas = document.getElementById('maru-canvas');
+        const container = document.getElementById('chapters-container');
+        const chapters = gsap.utils.toArray('.chapter');
+        const detailView = document.getElementById('detail-view');
+        const detailTitle = document.getElementById('detail-title');
+        const detailDescription = document.getElementById('detail-description');
+        const closeDetailBtn = document.getElementById('close-detail-btn');
+        const landmarks = document.querySelectorAll('.landmark');
+        // We will add sound controls later if the philosophy demands it. For now, silence.
+
+        const numChapters = chapters.length;
+        let currentChapter = 0;
+        let isScrolling = false;
+        
+        // --- SECTION 2: THE UNVEILING SEQUENCE ---
+        // A precisely timed ceremony.
+        setTimeout(() => {
+            unveiling.querySelector('.word').style.animationPlayState = 'running';
+        }, 500);
+
+        setTimeout(() => {
+            sarangiNote.volume = 0.5;
+            sarangiNote.play();
+        }, 2000);
+
+        setTimeout(() => {
+            unveiling.classList.add('hidden');
+            maruCanvas.classList.add('visible');
+            chapters[0].classList.add('active'); // Activate the first chapter
+        }, 5500);
+
+        // --- SECTION 3: THE HORIZONTAL SCROLL ---
+        // We hijack the crude scroll wheel to conduct a symphony of motion.
+        // GSAP is our baton.
+        function goToChapter(index) {
+            if (isScrolling) return;
+            isScrolling = true;
+
+            // Deactivate all chapters
+            chapters.forEach(ch => ch.classList.remove('active'));
+
+            gsap.to(container, {
+                x: -index * window.innerWidth,
+                duration: 1.5,
+                ease: 'power4.inOut',
+                onComplete: () => {
+                    isScrolling = false;
+                    currentChapter = index;
+                    // Activate the current chapter's content animations
+                    chapters[currentChapter].classList.add('active');
+                }
+            });
+            
+            // Update the Accent Color
+            const newColor = chapters[index].dataset.accentColor;
+            gsap.to(':root', { 
+                '--accent-color': newColor,
+                duration: 1.2,
+                ease: 'power2.out'
+            });
+        }
+        
+        window.addEventListener('wheel', (e) => {
+            if (isScrolling) return;
+            if (e.deltaY > 50 && currentChapter < numChapters - 1) {
+                goToChapter(currentChapter + 1);
+            } else if (e.deltaY < -50 && currentChapter > 0) {
+                goToChapter(currentChapter - 1);
+            }
+        });
+        
+        // --- SECTION 4: THE DETAIL VIEW INTERACTION ---
+        // A gentle zoom, not a jarring jump. We delve deeper into the canvas.
+        landmarks.forEach(landmark => {
+            landmark.addEventListener('click', (e) => {
+                e.preventDefault();
+                const title = landmark.dataset.title;
+                const description = landmark.dataset.description;
+                
+                detailTitle.textContent = title;
+                detailDescription.textContent = description;
+                
+                detailView.classList.add('visible');
+            });
+        });
+
+        closeDetailBtn.addEventListener('click', () => {
+            detailView.classList.remove('visible');
+        });
+
+        detailView.addEventListener('click', (e) => {
+            if (e.target === detailView) {
+                detailView.classList.remove('visible');
+            }
+        });
+        
+        // --- SECTION 5: THE AMBIENCE ---
+        // Sound is an optional layer, off by default. An invitation, not an imposition.
+        const soundToggle = document.getElementById('sound-toggle');
+        const soundIconOn = document.getElementById('sound-icon-on');
+        const soundIconOff = document.getElementById('sound-icon-off');
+        let isSoundOn = false;
+        // NOTE: Ambient sound files are not linked to keep the demo simple. In a real build,
+        // this would manage multiple <audio> elements, fading between them.
+
+        soundToggle.addEventListener('click', () => {
+            isSoundOn = !isSoundOn;
+            if(isSoundOn) {
+                soundIconOn.style.display = 'block';
+                soundIconOff.style.display = 'none';
+                soundToggle.title = 'Mute';
+                // Logic to play ambient sound for the current chapter would go here.
+            } else {
+                soundIconOn.style.display = 'none';
+                soundIconOff.style.display = 'block';
+                soundToggle.title = 'Listen';
+                // Logic to stop all ambient sounds would go here.
+            }
+        });
+    });
+    </script>
+</body>
+</html>
