@@ -282,6 +282,19 @@
         #detail-view.visible .detail-content {
             transform: scale(1);
         }
+        .detail-emoji {
+            font-size: 5rem;
+            line-height: 1;
+            margin-bottom: 1rem;
+            transform: scale(0.5);
+            opacity: 0;
+            transition: transform 0.6s var(--transition-curve), opacity 0.6s var(--transition-curve);
+        }
+        #detail-view.visible .detail-emoji {
+            transform: scale(1);
+            opacity: 1;
+            transition-delay: 0.2s;
+        }
         #detail-view h2 {
             font-weight: 400;
             font-size: 2.5rem;
@@ -418,9 +431,9 @@
                 <div class="chapter-content">
                     <h1 class="chapter-title">Jaipur<br>The Rose</h1>
                     <p class="chapter-description">Conceived by a Maharaja's dream of hospitality, each facade captures the morning's first light. A metropolis not merely constructed, but brought to life with a blush.</p>
-                    <a class="landmark" data-title="Hawa Mahal" data-description="It is not a palace, but a veil. A thousand apertures for a thousand gazes to observe the world, themselves unobserved. A partition of breeze and rock.">Discover Hawa Mahal</a>
-                    <a class="landmark" data-title="Amber Fort" data-description="A formidable citadel-palace of ruddy sandstone and ivory marble, a monument to Rajput magnificence.">Journey to Amber Fort</a>
-                    <a class="landmark" data-title="City Palace" data-description="An expansive labyrinth of plazas, gardens, and structures, the vibrant core of the ancient city.">Walk the City Palace</a>
+                    <a class="landmark" data-emoji="💨" data-title="Hawa Mahal" data-description="It is not a palace, but a veil. A thousand apertures for a thousand gazes to observe the world, themselves unobserved. A partition of breeze and rock.">Discover Hawa Mahal</a>
+                    <a class="landmark" data-emoji="🏰" data-title="Amber Fort" data-description="A formidable citadel-palace of ruddy sandstone and ivory marble, a monument to Rajput magnificence.">Journey to Amber Fort</a>
+                    <a class="landmark" data-emoji="🕌" data-title="City Palace" data-description="An expansive labyrinth of plazas, gardens, and structures, the vibrant core of the ancient city.">Walk the City Palace</a>
                 </div>
             </section>
 
@@ -430,9 +443,9 @@
                 <div class="chapter-content">
                     <h1 class="chapter-title">Jodhpur<br>The Indigo</h1>
                     <p class="chapter-description">An ocean of blue, flowing down the stone from the base of Mehrangarh. A hue to temper the heat, a sanctuary for the heavens.</p>
-                    <a class="landmark pullable-element" data-title="Mehrangarh Fort" data-description="It does not ascend. It emerges from the stone, a continuation of the land, erected by titans and polished by the sun.">Explore Mehrangarh</a>
-                    <a class="landmark" data-title="Jaswant Thada" data-description="A tranquil marble memorial, a tribute to Maharaja Jaswant Singh II.">Meditate at Jaswant Thada</a>
-                    <a class="landmark" data-title="Umaid Bhawan Palace" data-description="A splendid palace, serving as a hotel, museum, and royal home.">Discover Umaid Bhawan</a>
+                    <a class="landmark pullable-element" data-emoji=" जोधपुर" data-title="Mehrangarh Fort" data-description="It does not ascend. It emerges from the stone, a continuation of the land, erected by titans and polished by the sun.">Explore Mehrangarh</a>
+                    <a class="landmark" data-emoji="🕊️" data-title="Jaswant Thada" data-description="A tranquil marble memorial, a tribute to Maharaja Jaswant Singh II.">Meditate at Jaswant Thada</a>
+                    <a class="landmark" data-emoji="👑" data-title="Umaid Bhawan Palace" data-description="A splendid palace, serving as a hotel, museum, and royal home.">Discover Umaid Bhawan</a>
                 </div>
             </section>
 
@@ -442,9 +455,9 @@
                 <div class="chapter-content">
                     <h1 class="chapter-title">Jaisalmer<br>The Golden</h1>
                     <p class="chapter-description">An illusion brought to life. A fortress of sand engineered to endure millennia, radiant with the stored brilliance of a desert midday.</p>
-                    <a class="landmark pullable-element" data-title="The Living Fort" data-description="Inside these gilded ramparts, existence persists as it has for centuries. Markets, residences, and shrines resonate with a serene, enduring vitality.">Tread the Ramparts</a>
-                    <a class="landmark" data-title="Patwon Ki Haveli" data-description="A collection of five mansions, a marvel of detailed craftsmanship.">Marvel at the Havelis</a>
-                    <a class="landmark" data-title="Sam Sand Dunes" data-description="Feel the enchantment of the wilderness with a camel trek on the gilded sands.">Traverse the Dunes</a>
+                    <a class="landmark pullable-element" data-emoji="🏜️" data-title="The Living Fort" data-description="Inside these gilded ramparts, existence persists as it has for centuries. Markets, residences, and shrines resonate with a serene, enduring vitality.">Tread the Ramparts</a>
+                    <a class="landmark" data-emoji="🏘️" data-title="Patwon Ki Haveli" data-description="A collection of five mansions, a marvel of detailed craftsmanship.">Marvel at the Havelis</a>
+                    <a class="landmark" data-emoji="🐪" data-title="Sam Sand Dunes" data-description="Feel the enchantment of the wilderness with a camel trek on the gilded sands.">Traverse the Dunes</a>
                 </div>
             </section>
 
@@ -454,9 +467,9 @@
                 <div class="chapter-content">
                     <h1 class="chapter-title">Udaipur<br>The White</h1>
                     <p class="chapter-description">A metropolis of alabaster and liquid, where castles appear to levitate on the water's expanse. A vision mirrored in the tranquility of Pichola.</p>
-                    <a class="landmark" data-title="Lake Pichola" data-description="The soul of Udaipur. In daylight, it reflects the sun; at night, it becomes a tapestry for the constellations and illuminated castles.">Float on the Lake</a>
-                    <a class="landmark" data-title="City Palace of Udaipur" data-description="A grand palace labyrinth, a fusion of Rajasthani and Mughal designs.">Wander the Palace</a>
-                    <a class="landmark" data-title="Jag Mandir" data-description="A castle erected on an isle in Lake Pichola, a sanctuary of serene elegance.">See Jag Mandir</a>
+                    <a class="landmark" data-emoji="🌊" data-title="Lake Pichola" data-description="The soul of Udaipur. In daylight, it reflects the sun; at night, it becomes a tapestry for the constellations and illuminated castles.">Float on the Lake</a>
+                    <a class="landmark" data-emoji="🏯" data-title="City Palace of Udaipur" data-description="A grand palace labyrinth, a fusion of Rajasthani and Mughal designs.">Wander the Palace</a>
+                    <a class="landmark" data-emoji="🏝️" data-title="Jag Mandir" data-description="A castle erected on an isle in Lake Pichola, a sanctuary of serene elegance.">See Jag Mandir</a>
                 </div>
             </section>
             
@@ -466,9 +479,9 @@
                 <div class="chapter-content">
                     <h1 class="chapter-title">The Thar<br>The Silence</h1>
                     <p class="chapter-description">The immense void, where the terrain is shaped solely by the breeze. Here, the skyline is the solitary goal, and the quietude is the most resonant noise.</p>
-                    <a class="landmark pullable-element" data-title="The Dunes" data-description="A sea of sand, perpetually shifting, eternally calm. To observe the sunrise here is to behold the planet's creation.">Experience the Dawn</a>
-                    <a class="landmark" data-title="Desert National Park" data-description="A broad region of sand and stone, supporting a distinctive ecosystem.">Discover the Park</a>
-                    <a class="landmark" data-title="Khuri Village" data-description="Immerse yourself in the customary way of life of the desert inhabitants in this quaint hamlet.">Journey to Khuri</a>
+                    <a class="landmark pullable-element" data-emoji="🌅" data-title="The Dunes" data-description="A sea of sand, perpetually shifting, eternally calm. To observe the sunrise here is to behold the planet's creation.">Experience the Dawn</a>
+                    <a class="landmark" data-emoji="🏞️" data-title="Desert National Park" data-description="A broad region of sand and stone, supporting a distinctive ecosystem.">Discover the Park</a>
+                    <a class="landmark" data-emoji="🛖" data-title="Khuri Village" data-description="Immerse yourself in the customary way of life of the desert inhabitants in this quaint hamlet.">Journey to Khuri</a>
                 </div>
             </section>
 
@@ -478,9 +491,9 @@
                 <div class="chapter-content">
                     <h1 class="chapter-title">Pushkar<br>The Divine</h1>
                     <p class="chapter-description">A hallowed village on the banks of a sacred lake, a site of devotion and belief.</p>
-                    <a class="landmark" data-title="Pushkar Lake" data-description="A consecrated lake encircled by 52 bathing spots, where devotees arrive to cleanse and worship.">Feel the Lake</a>
-                    <a class="landmark" data-title="Brahma Temple" data-description="Among the rare shrines globally devoted to Lord Brahma, the originator.">See the Temple</a>
-                    <a class="landmark" data-title="Savitri Temple" data-description="A shrine for Brahma's spouse, providing sweeping vistas of the village.">Ascend to Savitri</a>
+                    <a class="landmark" data-emoji="💧" data-title="Pushkar Lake" data-description="A consecrated lake encircled by 52 bathing spots, where devotees arrive to cleanse and worship.">Feel the Lake</a>
+                    <a class="landmark" data-emoji="🕉️" data-title="Brahma Temple" data-description="Among the rare shrines globally devoted to Lord Brahma, the originator.">See the Temple</a>
+                    <a class="landmark" data-emoji="🙏" data-title="Savitri Temple" data-description="A shrine for Brahma's spouse, providing sweeping vistas of the village.">Ascend to Savitri</a>
                 </div>
             </section>
         </div>
@@ -514,6 +527,7 @@
     <!-- The Detail View Layer -->
     <div id="detail-view">
         <div class="detail-content">
+            <div class="detail-emoji" id="detail-emoji"></div>
             <h2 id="detail-title"></h2>
             <p id="detail-description"></p>
             <span class="close-btn" id="close-detail-btn">CLOSE</span>
@@ -535,6 +549,7 @@
         const container = document.getElementById('chapters-container');
         const chapters = gsap.utils.toArray('.chapter');
         const detailView = document.getElementById('detail-view');
+        const detailEmoji = document.getElementById('detail-emoji');
         const detailTitle = document.getElementById('detail-title');
         const detailDescription = document.getElementById('detail-description');
         const closeDetailBtn = document.getElementById('close-detail-btn');
@@ -636,7 +651,8 @@
         
         // --- SECTION 4: THE DETAIL VIEW INTERACTION ---
         // A gentle zoom, not a jarring jump. We delve deeper into the canvas.
-        function openDetailView(title, description) {
+        function openDetailView(title, description, emoji) {
+            detailEmoji.textContent = emoji;
             detailTitle.textContent = title;
             detailDescription.textContent = description;
             detailView.classList.add('visible');
@@ -656,11 +672,11 @@
             landmark.setAttribute('tabindex', '0');
             landmark.addEventListener('click', (e) => {
                 e.preventDefault();
-                openDetailView(landmark.dataset.title, landmark.dataset.description);
+                openDetailView(landmark.dataset.title, landmark.dataset.description, landmark.dataset.emoji);
             });
             landmark.addEventListener('keydown', (e) => {
                 if (e.key === 'Enter') {
-                    openDetailView(landmark.dataset.title, landmark.dataset.description);
+                    openDetailView(landmark.dataset.title, landmark.dataset.description, landmark.dataset.emoji);
                 }
             });
         });
