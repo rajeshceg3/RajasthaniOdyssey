@@ -1,147 +1,66 @@
-/* Jaipur (The Rose) */
-.chapter[data-accent-color="#E57373"] .bg-image {
-    background: radial-gradient(circle at 20% 80%, hsla(0, 70%, 85%, 0.4) 0%, hsla(0, 0%, 100%, 0) 40%),
-                radial-gradient(circle at 80% 30%, hsla(350, 80%, 90%, 0.5) 0%, hsla(0, 0%, 100%, 0) 35%),
-                url('https://images.unsplash.com/photo-1617153257577-476c24a64b2a?auto=format&fit=crop&w=1920&q=80');
-    background-blend-mode: screen;
+/*
+    RajasthaniOdyssey - Unified Chapter Styling
+    This file will contain the cohesive design language for all chapters,
+    ensuring a consistent, elegant, and emotionally resonant user journey.
+    All previous conflicting styles have been purged.
+*/
+
+/*
+    Background Images
+    Centralized here for proper separation of concerns.
+*/
+#bg-jaipur {
+    background-image: url('https://images.unsplash.com/photo-1617153257577-476c24a64b2a?auto=format&fit=crop&w=1920&q=80');
+}
+
+#bg-jodhpur {
+    background-image: url('https://images.unsplash.com/photo-1567215272332-90117f77a8f7?auto=format&fit=crop&w=1920&q=80');
+}
+
+#bg-jaisalmer {
+    background-image: url('https://images.unsplash.com/photo-1545229763-834c9f792d41?auto=format&fit=crop&w=1920&q=80');
+}
+
+#bg-udaipur {
+    background-image: url('https://images.unsplash.com/photo-1596374071936-a57c2cb0b82a?auto=format&fit=crop&w=1920&q=80');
+}
+
+#bg-thar {
+    background-image: url('https://images.unsplash.com/photo-1628892945281-c17543884b23?auto=format&fit=crop&w=1920&q=80');
+}
+
+#bg-pushkar {
+    background-image: url('https://images.unsplash.com/photo-1587224234288-8b3681d93549?auto=format&fit=crop&w=1920&q=80');
+}
+
+/*
+    Immersive Background Styling
+    Applies a cinematic feel to the chapter backgrounds.
+*/
+.bg-image {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
     background-size: cover;
+    background-position: center;
+    z-index: -1;
+    transform: scale(1.05); /* Start slightly zoomed in */
+    transition: transform 12s ease-in-out; /* A long, gentle transition for the zoom effect */
 }
 
-.chapter[data-accent-color="#E57373"] .chapter-title {
-    font-family: 'Playfair Display', serif;
-    font-weight: 700;
-    font-size: 6rem;
-    letter-spacing: -2px;
-    text-shadow: 2px 2px 15px rgba(0, 0, 0, 0.1);
-}
-
-.chapter[data-accent-color="#E57373"] .landmark {
-    transition: transform 0.3s ease, color 0.3s ease;
-}
-
-.chapter[data-accent-color="#E57373"] .landmark:hover {
-    transform: translateY(-3px);
-    color: #c44c4c;
-}
-
-/* Jodhpur (The Indigo) */
-.chapter[data-accent-color="#4FC3F7"] .bg-image {
-    background-color: #e1f5fe;
-    background-image:
-        linear-gradient(45deg, #4fc3f7 25%, transparent 25%),
-        linear-gradient(-45deg, #4fc3f7 25%, transparent 25%),
-        linear-gradient(45deg, transparent 75%, #4fc3f7 75%),
-        linear-gradient(-45deg, transparent 75%, #4fc3f7 75%);
-    background-size: 60px 60px;
-    background-position: 0 0, 0 30px, 30px -30px, -30px 0px;
-}
-
-.chapter[data-accent-color="#4FC3F7"] .chapter-title {
-    font-family: 'Roboto', sans-serif;
-    font-weight: 900;
-    font-size: 7rem;
-    text-transform: uppercase;
-    letter-spacing: 5px;
-}
-
-.chapter[data-accent-color="#4FC3F7"] .landmark {
-    position: relative;
-}
-
-.chapter[data-accent-color="#4FC3F7"] .landmark::before {
+.bg-image::after {
     content: '';
     position: absolute;
-    bottom: -5px;
+    top: 0;
     left: 0;
-    width: 0%;
-    height: 2px;
-    background-color: #1da2e4;
-    transition: width 0.4s ease-in-out;
-}
-
-.chapter[data-accent-color="#4FC3F7"] .landmark:hover::before {
     width: 100%;
+    height: 100%;
+    background: linear-gradient(to top, rgba(0, 0, 0, 0.2) 0%, transparent 40%);
+    opacity: 0.8;
 }
 
-/* Jaisalmer (The Golden) */
-.chapter[data-accent-color="#FFCA28"] .bg-image {
-    background: conic-gradient(from 90deg at 50% 0%, #FFD54F, #FFECB3, #FFF8E1, #FFECB3, #FFD54F);
-}
-
-.chapter[data-accent-color="#FFCA28"] .chapter-content {
-    animation: fadeIn 2s ease-in-out;
-}
-
-@keyframes fadeIn {
-    from { opacity: 0; }
-    to { opacity: 1; }
-}
-
-.chapter[data-accent-color="#FFCA28"] .chapter-title {
-    font-family: 'Cinzel Decorative', cursive;
-    font-size: 6.5rem;
-    font-weight: 700;
-}
-
-/* Udaipur (The White) */
-.chapter[data-accent-color="#CFD8DC"] .bg-image {
-    background: repeating-linear-gradient(
-        -45deg,
-        #eceff1,
-        #eceff1 10px,
-        #cfd8dc 10px,
-        #cfd8dc 20px
-    );
-}
-
-.chapter[data-accent-color="#CFD8DC"] .chapter-title {
-    font-family: 'Bodoni Moda', serif;
-    font-style: italic;
-    font-weight: 400;
-    font-size: 7rem;
-}
-
-.chapter[data-accent-color="#CFD8DC"] .landmark {
-    transition: letter-spacing 0.3s ease;
-}
-
-.chapter[data-accent-color="#CFD8DC"] .landmark:hover {
-    letter-spacing: 2px;
-}
-
-/* The Thar (The Silence) */
-.chapter[data-accent-color="#D7CCC8"] .bg-image {
-    background: radial-gradient(ellipse at bottom, #bcaaa4 0%, #d7ccc8 70%, #f5f5f5 100%);
-}
-
-.chapter[data-accent-color="#D7CCC8"] .chapter-content {
-    animation: slideIn 1.5s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-}
-
-@keyframes slideIn {
-    from { transform: translateY(50px); opacity: 0; }
-    to { transform: translateY(0); opacity: 1; }
-}
-
-.chapter[data-accent-color="#D7CCC8"] .chapter-title {
-    font-family: 'Lato', sans-serif;
-    font-weight: 300;
-    font-size: 8rem;
-    letter-spacing: 10px;
-}
-
-/* Pushkar (The Divine) */
-.chapter[data-accent-color="#FFAB91"] .bg-image {
-    background: linear-gradient(135deg, #ffab91 0%, #ff8a65 100%);
-}
-
-.chapter[data-accent-color="#FFAB91"] .chapter-title {
-    font-family: 'Marcellus SC', serif;
-    font-size: 6rem;
-    text-align: center;
-}
-
-.chapter[data-accent-color="#FFAB91"] .landmark:hover {
-    box-shadow: 0 0 15px rgba(255, 171, 145, 0.8);
-    color: #d84315;
+.chapter.active .bg-image {
+    transform: scale(1); /* Gently zoom out to normal when the chapter becomes active */
 }
