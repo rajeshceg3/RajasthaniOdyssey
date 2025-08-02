@@ -2,12 +2,22 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://cdn.jsdelivr.net/npm/gsap@3.12.2/ 'unsafe-inline'; style-src 'self' https://fonts.googleapis.com 'unsafe-inline'; font-src https://fonts.gstatic.com; img-src 'self' https://images.unsplash.com; media-src https://assets.codepen.io; connect-src https://fonts.googleapis.com https://fonts.gstatic.com;">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Maru</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@300;400;500&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="locations.css">
+
+    <!-- Preload ambient sounds -->
+    <link rel="preload" href="https://assets.codepen.io/134442/jaipur.mp3" as="audio">
+    <link rel="preload" href="https://assets.codepen.io/134442/jodhpur.mp3" as="audio">
+    <link rel="preload" href="https://assets.codepen.io/134442/jaisalmer.mp3" as="audio">
+    <link rel="preload" href="https://assets.codepen.io/134442/udaipur.mp3" as="audio">
+    <link rel="preload" href="https://assets.codepen.io/134442/thar.mp3" as="audio">
+    <link rel="preload" href="https://assets.codepen.io/134442/pushkar.mp3" as="audio">
+
     <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.2/dist/gsap.min.js"></script>
 
     <style>
@@ -366,6 +376,28 @@
             }
         }
 
+        /* Accessibility additions */
+        @media (prefers-reduced-motion: reduce) {
+          *,
+          *::before,
+          *::after {
+            animation-duration: 0.01ms !important;
+            animation-iteration-count: 1 !important;
+            transition-duration: 0.01ms !important;
+            scroll-behavior: auto !important;
+          }
+        }
+
+        button.landmark, button.close-btn {
+            background: none;
+            border: none;
+            padding: 0;
+            font: inherit;
+            color: inherit;
+            cursor: pointer;
+            text-align: left;
+        }
+
     </style>
 </head>
 <body>
@@ -385,9 +417,9 @@
                 <div class="chapter-content">
                     <h1 class="chapter-title">Jaipur<br>The Rose</h1>
                     <p class="chapter-description">Conceived by a Maharaja's dream of hospitality, each facade captures the morning's first light. A metropolis not merely constructed, but brought to life with a blush.</p>
-                    <a class="landmark" data-emoji="💨" data-title="Hawa Mahal" data-description="It is not a palace, but a veil. A thousand apertures for a thousand gazes to observe the world, themselves unobserved. A partition of breeze and rock.">Discover Hawa Mahal</a>
-                    <a class="landmark" data-emoji="🏰" data-title="Amber Fort" data-description="A formidable citadel-palace of ruddy sandstone and ivory marble, a monument to Rajput magnificence.">Journey to Amber Fort</a>
-                    <a class="landmark" data-emoji="🕌" data-title="City Palace" data-description="An expansive labyrinth of plazas, gardens, and structures, the vibrant core of the ancient city.">Walk the City Palace</a>
+                    <button class="landmark" data-emoji="💨" data-title="Hawa Mahal" data-description="It is not a palace, but a veil. A thousand apertures for a thousand gazes to observe the world, themselves unobserved. A partition of breeze and rock.">Discover Hawa Mahal</button>
+                    <button class="landmark" data-emoji="🏰" data-title="Amber Fort" data-description="A formidable citadel-palace of ruddy sandstone and ivory marble, a monument to Rajput magnificence.">Journey to Amber Fort</button>
+                    <button class="landmark" data-emoji="🕌" data-title="City Palace" data-description="An expansive labyrinth of plazas, gardens, and structures, the vibrant core of the ancient city.">Walk the City Palace</button>
                 </div>
             </section>
 
@@ -397,9 +429,9 @@
                 <div class="chapter-content">
                     <h1 class="chapter-title">Jodhpur<br>The Indigo</h1>
                     <p class="chapter-description">An ocean of blue, flowing down the stone from the base of Mehrangarh. A hue to temper the heat, a sanctuary for the heavens.</p>
-                    <a class="landmark pullable-element" data-emoji=" जोधपुर" data-title="Mehrangarh Fort" data-description="It does not ascend. It emerges from the stone, a continuation of the land, erected by titans and polished by the sun.">Explore Mehrangarh</a>
-                    <a class="landmark" data-emoji="🕊️" data-title="Jaswant Thada" data-description="A tranquil marble memorial, a tribute to Maharaja Jaswant Singh II.">Meditate at Jaswant Thada</a>
-                    <a class="landmark" data-emoji="👑" data-title="Umaid Bhawan Palace" data-description="A splendid palace, serving as a hotel, museum, and royal home.">Discover Umaid Bhawan</a>
+                    <button class="landmark pullable-element" data-emoji="🏰" data-title="Mehrangarh Fort" data-description="It does not ascend. It emerges from the stone, a continuation of the land, erected by titans and polished by the sun.">Explore Mehrangarh</button>
+                    <button class="landmark" data-emoji="🕊️" data-title="Jaswant Thada" data-description="A tranquil marble memorial, a tribute to Maharaja Jaswant Singh II.">Meditate at Jaswant Thada</button>
+                    <button class="landmark" data-emoji="👑" data-title="Umaid Bhawan Palace" data-description="A splendid palace, serving as a hotel, museum, and royal home.">Discover Umaid Bhawan</button>
                 </div>
             </section>
 
@@ -409,9 +441,9 @@
                 <div class="chapter-content">
                     <h1 class="chapter-title">Jaisalmer<br>The Golden</h1>
                     <p class="chapter-description">An illusion brought to life. A fortress of sand engineered to endure millennia, radiant with the stored brilliance of a desert midday.</p>
-                    <a class="landmark pullable-element" data-emoji="🏜️" data-title="The Living Fort" data-description="Inside these gilded ramparts, existence persists as it has for centuries. Markets, residences, and shrines resonate with a serene, enduring vitality.">Tread the Ramparts</a>
-                    <a class="landmark" data-emoji="🏘️" data-title="Patwon Ki Haveli" data-description="A collection of five mansions, a marvel of detailed craftsmanship.">Marvel at the Havelis</a>
-                    <a class="landmark" data-emoji="🐪" data-title="Sam Sand Dunes" data-description="Feel the enchantment of the wilderness with a camel trek on the gilded sands.">Traverse the Dunes</a>
+                    <button class="landmark pullable-element" data-emoji="🏜️" data-title="The Living Fort" data-description="Inside these gilded ramparts, existence persists as it has for centuries. Markets, residences, and shrines resonate with a serene, enduring vitality.">Tread the Ramparts</button>
+                    <button class="landmark" data-emoji="🏘️" data-title="Patwon Ki Haveli" data-description="A collection of five mansions, a marvel of detailed craftsmanship.">Marvel at the Havelis</button>
+                    <button class="landmark" data-emoji="🐪" data-title="Sam Sand Dunes" data-description="Feel the enchantment of the wilderness with a camel trek on the gilded sands.">Traverse the Dunes</button>
                 </div>
             </section>
 
@@ -421,9 +453,9 @@
                 <div class="chapter-content">
                     <h1 class="chapter-title">Udaipur<br>The White</h1>
                     <p class="chapter-description">A metropolis of alabaster and liquid, where castles appear to levitate on the water's expanse. A vision mirrored in the tranquility of Pichola.</p>
-                    <a class="landmark" data-emoji="🌊" data-title="Lake Pichola" data-description="The soul of Udaipur. In daylight, it reflects the sun; at night, it becomes a tapestry for the constellations and illuminated castles.">Float on the Lake</a>
-                    <a class="landmark" data-emoji="🏯" data-title="City Palace of Udaipur" data-description="A grand palace labyrinth, a fusion of Rajasthani and Mughal designs.">Wander the Palace</a>
-                    <a class="landmark" data-emoji="🏝️" data-title="Jag Mandir" data-description="A castle erected on an isle in Lake Pichola, a sanctuary of serene elegance.">See Jag Mandir</a>
+                    <button class="landmark" data-emoji="🌊" data-title="Lake Pichola" data-description="The soul of Udaipur. In daylight, it reflects the sun; at night, it becomes a tapestry for the constellations and illuminated castles.">Float on the Lake</button>
+                    <button class="landmark" data-emoji="🏯" data-title="City Palace of Udaipur" data-description="A grand palace labyrinth, a fusion of Rajasthani and Mughal designs.">Wander the Palace</button>
+                    <button class="landmark" data-emoji="🏝️" data-title="Jag Mandir" data-description="A castle erected on an isle in Lake Pichola, a sanctuary of serene elegance.">See Jag Mandir</button>
                 </div>
             </section>
             
@@ -433,9 +465,9 @@
                 <div class="chapter-content">
                     <h1 class="chapter-title">The Thar<br>The Silence</h1>
                     <p class="chapter-description">The immense void, where the terrain is shaped solely by the breeze. Here, the skyline is the solitary goal, and the quietude is the most resonant noise.</p>
-                    <a class="landmark pullable-element" data-emoji="🌅" data-title="The Dunes" data-description="A sea of sand, perpetually shifting, eternally calm. To observe the sunrise here is to behold the planet's creation.">Experience the Dawn</a>
-                    <a class="landmark" data-emoji="🏞️" data-title="Desert National Park" data-description="A broad region of sand and stone, supporting a distinctive ecosystem.">Discover the Park</a>
-                    <a class="landmark" data-emoji="🛖" data-title="Khuri Village" data-description="Immerse yourself in the customary way of life of the desert inhabitants in this quaint hamlet.">Journey to Khuri</a>
+                    <button class="landmark pullable-element" data-emoji="🌅" data-title="The Dunes" data-description="A sea of sand, perpetually shifting, eternally calm. To observe the sunrise here is to behold the planet's creation.">Experience the Dawn</button>
+                    <button class="landmark" data-emoji="🏞️" data-title="Desert National Park" data-description="A broad region of sand and stone, supporting a distinctive ecosystem.">Discover the Park</button>
+                    <button class="landmark" data-emoji="🛖" data-title="Khuri Village" data-description="Immerse yourself in the customary way of life of the desert inhabitants in this quaint hamlet.">Journey to Khuri</button>
                 </div>
             </section>
 
@@ -445,9 +477,9 @@
                 <div class="chapter-content">
                     <h1 class="chapter-title">Pushkar<br>The Divine</h1>
                     <p class="chapter-description">A hallowed village on the banks of a sacred lake, a site of devotion and belief.</p>
-                    <a class="landmark" data-emoji="💧" data-title="Pushkar Lake" data-description="A consecrated lake encircled by 52 bathing spots, where devotees arrive to cleanse and worship.">Feel the Lake</a>
-                    <a class="landmark" data-emoji="🕉️" data-title="Brahma Temple" data-description="Among the rare shrines globally devoted to Lord Brahma, the originator.">See the Temple</a>
-                    <a class="landmark" data-emoji="🙏" data-title="Savitri Temple" data-description="A shrine for Brahma's spouse, providing sweeping vistas of the village.">Ascend to Savitri</a>
+                    <button class="landmark" data-emoji="💧" data-title="Pushkar Lake" data-description="A consecrated lake encircled by 52 bathing spots, where devotees arrive to cleanse and worship.">Feel the Lake</button>
+                    <button class="landmark" data-emoji="🕉️" data-title="Brahma Temple" data-description="Among the rare shrines globally devoted to Lord Brahma, the originator.">See the Temple</button>
+                    <button class="landmark" data-emoji="🙏" data-title="Savitri Temple" data-description="A shrine for Brahma's spouse, providing sweeping vistas of the village.">Ascend to Savitri</button>
                 </div>
             </section>
         </div>
@@ -457,7 +489,7 @@
              <video src="https://assets.codepen.io/134442/potter.mp4" autoplay loop muted playsinline></video>
         </div>
 
-        <button id="sound-toggle" title="Listen">
+        <button id="sound-toggle" title="Listen" aria-label="Enable sound" aria-pressed="false">
             <svg id="sound-icon-off" viewBox="0 0 24 24">
                 <line x1="1" y1="1" x2="23" y2="23"></line>
                 <path d="M9 9v3a3 3 0 0 0 5.12 2.12M15 9.34V4a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v10"></path>
@@ -480,7 +512,7 @@
             <div class="detail-emoji" id="detail-emoji"></div>
             <h2 id="detail-title"></h2>
             <p id="detail-description"></p>
-            <span class="close-btn" id="close-detail-btn">CLOSE</span>
+            <button class="close-btn" id="close-detail-btn">CLOSE</button>
         </div>
     </div>
 
@@ -539,45 +571,14 @@
         // --- SECTION 3: THE HORIZONTAL SCROLL ---
         // We hijack the crude scroll wheel to conduct a symphony of motion.
         // GSAP is our baton.
-        function goToChapter(index) {
-            if (isScrolling) return;
-            isScrolling = true;
-
-            // Deactivate all chapters
-            chapters.forEach(ch => ch.classList.remove('active'));
-
-            gsap.to(container, {
-                x: -index * window.innerWidth,
-                duration: 1.5,
-                ease: 'power4.inOut',
-                onComplete: () => {
-                    isScrolling = false;
-                    currentChapter = index;
-                    // Activate the current chapter's content animations
-                    chapters[currentChapter].classList.add('active');
-                }
-            });
-            
-            // Update the Accent Color
-            const newColor = chapters[index].dataset.accentColor;
-            gsap.to(':root', { 
-                '--accent-color': newColor,
-                duration: 1.2,
-                ease: 'power2.out'
-            });
-        }
         
         // The scroll-jacking is now the default, confident interaction model.
-        const isScrollJackEnabled = true;
-
         window.addEventListener('wheel', (e) => {
-            if (isScrollJackEnabled) {
-                if (isScrolling) return;
-                if (e.deltaY > 50 && currentChapter < numChapters - 1) {
-                    goToChapter(currentChapter + 1);
-                } else if (e.deltaY < -50 && currentChapter > 0) {
-                    goToChapter(currentChapter - 1);
-                }
+            if (isScrolling) return;
+            if (e.deltaY > 50 && currentChapter < numChapters - 1) {
+                goToChapter(currentChapter + 1);
+            } else if (e.deltaY < -50 && currentChapter > 0) {
+                goToChapter(currentChapter - 1);
             }
         });
 
@@ -678,15 +679,18 @@
 
         soundToggle.addEventListener('click', () => {
             isSoundOn = !isSoundOn;
+            soundToggle.setAttribute('aria-pressed', isSoundOn);
             if(isSoundOn) {
                 soundIconOn.style.display = 'block';
                 soundIconOff.style.display = 'none';
                 soundToggle.title = 'Mute';
+                soundToggle.setAttribute('aria-label', 'Mute sound');
                 playCurrentAmbientSound();
             } else {
                 soundIconOn.style.display = 'none';
                 soundIconOff.style.display = 'block';
                 soundToggle.title = 'Listen';
+                soundToggle.setAttribute('aria-label', 'Enable sound');
                 stopAllAmbientSounds();
             }
         });
