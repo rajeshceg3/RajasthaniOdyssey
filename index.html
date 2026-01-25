@@ -41,7 +41,7 @@
             --canvas-white: #FDFBF5;
             --charcoal-text: #33312E;
             --soft-grey-ui: #A8A5A0;
-            --accent-color: #F2D7D5; /* Jaipur's Rose Quartz, the default */
+            --accent-color: #FADADD; /* Jaipur's Soft Pink */
             --transition-curve: cubic-bezier(0.65, 0, 0.35, 1);
             --transition-duration: 0.8s;
         }
@@ -59,6 +59,67 @@
             background-color: var(--canvas-white);
             font-family: 'Manrope', sans-serif;
             color: var(--charcoal-text);
+            text-rendering: optimizeLegibility;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        .noise-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 9000;
+            opacity: 0.04;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+        }
+
+        .cursor-dot,
+        .cursor-outline {
+            position: fixed;
+            top: 0;
+            left: 0;
+            transform: translate(-50%, -50%);
+            border-radius: 50%;
+            z-index: 9999;
+            pointer-events: none;
+        }
+
+        .cursor-dot {
+            width: 8px;
+            height: 8px;
+            background-color: var(--charcoal-text);
+        }
+
+        .cursor-outline {
+            width: 40px;
+            height: 40px;
+            border: 1px solid var(--charcoal-text);
+            transition: width 0.2s, height 0.2s, background-color 0.2s;
+        }
+
+        .cursor-outline.hover {
+            width: 60px;
+            height: 60px;
+            background-color: rgba(255, 255, 255, 0.1);
+            backdrop-filter: invert(1);
+            border-color: transparent;
+        }
+
+        /* Hide default cursor */
+        body {
+            cursor: none;
+        }
+
+        /* Ensure cursor is visible on touch devices or handle it via JS (usually hidden) */
+        @media (hover: none) and (pointer: coarse) {
+            .cursor-dot, .cursor-outline {
+                display: none;
+            }
+            body {
+                cursor: auto;
+            }
         }
 
         /* CHAPTER 1: THE UNVEILING */
@@ -157,29 +218,24 @@
         }
 
         .landmark {
-            display: inline-block;
+            display: table; /* Or block with fit-content */
+            width: fit-content;
             font-size: 1.2rem;
             font-weight: 500;
             text-decoration: none;
             color: var(--charcoal-text);
-            padding-bottom: 4px;
+            padding: 8px 16px;
+            margin: 0 0 1rem -16px; /* Negative left margin to align text visually with paragraph, positive bottom for spacing */
             position: relative;
             cursor: pointer;
+            border-radius: 30px;
+            transition: background-color 0.4s ease, transform 0.4s ease;
         }
-        .landmark:after {
-            content: '';
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            width: 100%;
-            height: 1px;
-            background-color: var(--accent-color);
-            transform: scaleX(0);
-            transform-origin: left;
-            transition: transform 0.8s cubic-bezier(0.19, 1, 0.22, 1); /* Refined transition */
-        }
-        .landmark:hover:after, .landmark:focus:after {
-            transform: scaleX(1);
+        /* No underline - we use a soft background fill */
+        .landmark:hover, .landmark:focus {
+            background-color: rgba(255, 255, 255, 0.4);
+            transform: translateX(10px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
         }
 
         .landmark:focus, #sound-toggle:focus, .close-btn:focus {
@@ -335,11 +391,20 @@
             justify-content: center;
         }
         .thread-guide {
-            border-top: 1px solid var(--soft-grey-ui);
+            background: rgba(168, 165, 160, 0.2);
+            height: 1px;
             width: 80%;
             position: absolute;
             bottom: 40px;
-            opacity: 0.5;
+        }
+        .thread-progress {
+            height: 2px;
+            background-color: var(--accent-color);
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 0%;
+            transition: background-color 1s ease;
         }
         .thread-guide-text {
             position: absolute;
@@ -401,6 +466,9 @@
     </style>
 </head>
 <body>
+    <div class="noise-overlay"></div>
+    <div class="cursor-dot"></div>
+    <div class="cursor-outline"></div>
 
     <!-- The Unveiling: A moment of quiet anticipation. -->
     <div class="unveiling" id="unveiling">
@@ -412,7 +480,7 @@
     <main id="maru-canvas">
         <div class="chapters-container" id="chapters-container">
             <!-- Chapter 1: Jaipur -->
-            <section class="chapter" data-accent-color="#F2D7D5" data-ambient-sound-src="https://assets.codepen.io/134442/jaipur.mp3">
+            <section class="chapter" data-accent-color="#FADADD" data-ambient-sound-src="https://assets.codepen.io/134442/jaipur.mp3">
                 <div id="bg-jaipur" class="bg-image"></div>
                 <div class="chapter-content">
                     <h1 class="chapter-title">Jaipur<br>The Rose</h1>
@@ -424,7 +492,7 @@
             </section>
 
             <!-- Chapter 2: Jodhpur -->
-            <section class="chapter" data-accent-color="#A9CCE3" data-ambient-sound-src="https://assets.codepen.io/134442/jodhpur.mp3">
+            <section class="chapter" data-accent-color="#AED6F1" data-ambient-sound-src="https://assets.codepen.io/134442/jodhpur.mp3">
                 <div id="bg-jodhpur" class="bg-image"></div>
                 <div class="chapter-content">
                     <h1 class="chapter-title">Jodhpur<br>The Indigo</h1>
@@ -436,7 +504,7 @@
             </section>
 
             <!-- Chapter 3: Jaisalmer -->
-            <section class="chapter" data-accent-color="#FDEBD0" data-ambient-sound-src="https://assets.codepen.io/134442/jaisalmer.mp3">
+            <section class="chapter" data-accent-color="#F9E79F" data-ambient-sound-src="https://assets.codepen.io/134442/jaisalmer.mp3">
                 <div id="bg-jaisalmer" class="bg-image"></div>
                 <div class="chapter-content">
                     <h1 class="chapter-title">Jaisalmer<br>The Golden</h1>
@@ -448,7 +516,7 @@
             </section>
 
             <!-- Chapter 4: Udaipur -->
-            <section class="chapter" data-accent-color="#EAECEE" data-ambient-sound-src="https://assets.codepen.io/134442/udaipur.mp3">
+            <section class="chapter" data-accent-color="#EBEDEF" data-ambient-sound-src="https://assets.codepen.io/134442/udaipur.mp3">
                 <div id="bg-udaipur" class="bg-image"></div>
                 <div class="chapter-content">
                     <h1 class="chapter-title">Udaipur<br>The White</h1>
@@ -460,7 +528,7 @@
             </section>
             
             <!-- Chapter 5: The Thar -->
-            <section class="chapter" data-accent-color="#E5E0D8" data-ambient-sound-src="https://assets.codepen.io/134442/thar.mp3">
+            <section class="chapter" data-accent-color="#EAE0C8" data-ambient-sound-src="https://assets.codepen.io/134442/thar.mp3">
                 <div id="bg-thar" class="bg-image"></div>
                 <div class="chapter-content">
                     <h1 class="chapter-title">The Thar<br>The Silence</h1>
@@ -472,7 +540,7 @@
             </section>
 
             <!-- Chapter 6: Pushkar -->
-            <section class="chapter" data-accent-color="#FADBD8" data-ambient-sound-src="https://assets.codepen.io/134442/pushkar.mp3">
+            <section class="chapter" data-accent-color="#F5B7B1" data-ambient-sound-src="https://assets.codepen.io/134442/pushkar.mp3">
                 <div id="bg-pushkar" class="bg-image"></div>
                 <div class="chapter-content">
                     <h1 class="chapter-title">Pushkar<br>The Divine</h1>
@@ -500,7 +568,9 @@
         </button>
 
         <div id="thread-timeline">
-            <div class="thread-guide"></div>
+            <div class="thread-guide">
+                <div class="thread-progress" id="thread-progress"></div>
+            </div>
             <span class="thread-guide-text">YOUR THREAD</span>
         </div>
         <div class="scroll-indicator"></div>
@@ -538,11 +608,79 @@
         const landmarks = document.querySelectorAll('.landmark');
         // We will add sound controls later if the philosophy demands it. For now, silence.
 
+        // Cursor Elements
+        const cursorDot = document.querySelector('.cursor-dot');
+        const cursorOutline = document.querySelector('.cursor-outline');
+
         const numChapters = chapters.length;
         container.style.width = `${numChapters * 100}%`;
         let currentChapter = 0;
         let isScrolling = false;
         
+        // --- SECTION 1.5: CURSOR LOGIC ---
+        // The cursor is an extension of the user's intent. It flows like ink.
+
+        let mouseX = 0;
+        let mouseY = 0;
+
+        // Initial setup to center cursor before movement
+        gsap.set(cursorDot, { xPercent: -50, yPercent: -50 });
+        gsap.set(cursorOutline, { xPercent: -50, yPercent: -50 });
+
+        const xTo = gsap.quickTo(cursorOutline, "x", { duration: 0.2, ease: "power3" });
+        const yTo = gsap.quickTo(cursorOutline, "y", { duration: 0.2, ease: "power3" });
+
+        window.addEventListener("mousemove", (e) => {
+            mouseX = e.clientX;
+            mouseY = e.clientY;
+
+            // The dot is immediate
+            gsap.to(cursorDot, { x: mouseX, y: mouseY, duration: 0.01 });
+
+            // The outline follows with grace
+            xTo(mouseX);
+            yTo(mouseY);
+        });
+
+        // Interactive states
+        const interactiveElements = document.querySelectorAll('button, a, .landmark, .artisan-hand, .pullable-element');
+
+        interactiveElements.forEach(el => {
+            el.addEventListener('mouseenter', () => {
+                cursorOutline.classList.add('hover');
+            });
+            el.addEventListener('mouseleave', () => {
+                cursorOutline.classList.remove('hover');
+            });
+        });
+
+        // Magnetic Effect
+        function magneticEffect(element) {
+            if (!element) return;
+
+            const xTo = gsap.quickTo(element, "x", { duration: 1, ease: "elastic.out(1, 0.3)" });
+            const yTo = gsap.quickTo(element, "y", { duration: 1, ease: "elastic.out(1, 0.3)" });
+
+            element.addEventListener("mousemove", (e) => {
+                const { clientX, clientY } = e;
+                const { left, top, width, height } = element.getBoundingClientRect();
+                const x = clientX - (left + width / 2);
+                const y = clientY - (top + height / 2);
+
+                xTo(x * 0.35); // Strength of the magnet
+                yTo(y * 0.35);
+            });
+
+            element.addEventListener("mouseleave", () => {
+                xTo(0);
+                yTo(0);
+            });
+        }
+
+        magneticEffect(document.querySelector('.artisan-hand'));
+        magneticEffect(document.getElementById('sound-toggle'));
+
+
         // --- SECTION 2: THE UNVEILING SEQUENCE ---
         // A precisely timed ceremony.
         let unveilingAnimation;
@@ -722,6 +860,14 @@
                 '--accent-color': newColor,
                 duration: 1.2,
                 ease: 'power2.out'
+            });
+
+            // Update Thread Progress
+            const progress = (index / (numChapters - 1)) * 100;
+            gsap.to('#thread-progress', {
+                width: `${progress}%`,
+                duration: 1.5,
+                ease: 'power4.inOut'
             });
         }
     });
