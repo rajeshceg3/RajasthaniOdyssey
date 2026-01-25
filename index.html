@@ -71,7 +71,8 @@
             height: 100%;
             pointer-events: none;
             z-index: 9000;
-            opacity: 0.04;
+            opacity: 0.07;
+            mix-blend-mode: overlay;
             background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
         }
 
@@ -97,6 +98,9 @@
             height: 40px;
             border: 1px solid var(--charcoal-text);
             transition: width 0.2s, height 0.2s, background-color 0.2s;
+            mix-blend-mode: difference;
+            color: white; /* For border color in difference mode */
+            border-color: white;
         }
 
         .cursor-outline.hover {
@@ -134,12 +138,14 @@
             display: flex;
             justify-content: center;
             align-items: center;
-            pointer-events: none;
+            pointer-events: auto; /* Enable clicking to skip */
             transition: opacity 2s var(--transition-curve);
+            cursor: pointer;
         }
 
         .unveiling.hidden {
             opacity: 0;
+            pointer-events: none;
         }
 
         .unveiling .word {
@@ -208,6 +214,11 @@
             opacity: 1;
         }
 
+        /* Split Text Animation Classes */
+        .chapter-title span, .chapter-description span {
+            display: inline-block;
+        }
+
         .chapter-description {
             font-size: 1.1rem;
             font-weight: 400;
@@ -229,13 +240,35 @@
             position: relative;
             cursor: pointer;
             border-radius: 30px;
-            transition: background-color 0.4s ease, transform 0.4s ease;
+            transition: transform 0.4s ease, color 0.4s ease;
+            overflow: hidden;
+            z-index: 1;
         }
+
+        .landmark::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: var(--accent-color);
+            transform: translateX(-101%);
+            transition: transform 0.5s cubic-bezier(0.19, 1, 0.22, 1);
+            z-index: -1;
+            border-radius: 30px;
+        }
+
         /* No underline - we use a soft background fill */
         .landmark:hover, .landmark:focus {
-            background-color: rgba(255, 255, 255, 0.4);
+            /* background-color: rgba(255, 255, 255, 0.4); Removed for new effect */
             transform: translateX(10px);
             box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+            /* color: var(--canvas-white);  Optional: change text color if accent is dark */
+        }
+
+        .landmark:hover::before, .landmark:focus::before {
+            transform: translateX(0);
         }
 
         .landmark:focus, #sound-toggle:focus, .close-btn:focus {
@@ -385,7 +418,8 @@
             height: 100px;
             background: linear-gradient(to top, rgba(253, 251, 245, 1), rgba(253, 251, 245, 0));
             z-index: 400;
-            pointer-events: none;
+            pointer-events: auto;
+            cursor: pointer;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -466,6 +500,7 @@
     </style>
 </head>
 <body>
+    <canvas id="dust-canvas"></canvas>
     <div class="noise-overlay"></div>
     <div class="cursor-dot"></div>
     <div class="cursor-outline"></div>
@@ -617,6 +652,30 @@
         let currentChapter = 0;
         let isScrolling = false;
         
+        // --- SECTION 1.2: TEXT SPLITTING UTILITY ---
+        // We fragment the language to reconstruct it with motion.
+        function splitText(element) {
+            if (!element) return;
+            const text = element.innerText;
+            const words = text.split(' ');
+            element.innerHTML = words.map(word => {
+                if(word.includes('\n')) {
+                    const parts = word.split('\n');
+                    return parts.map((part, i) => {
+                        return `<span>${part}</span>${i < parts.length - 1 ? '<br>' : ''}`;
+                    }).join('');
+                }
+                return `<span>${word}</span>`;
+            }).join(' ');
+            return element.querySelectorAll('span');
+        }
+
+        // Initialize Split Text
+        chapters.forEach(chapter => {
+            splitText(chapter.querySelector('.chapter-title'));
+            splitText(chapter.querySelector('.chapter-description'));
+        });
+
         // --- SECTION 1.5: CURSOR LOGIC ---
         // The cursor is an extension of the user's intent. It flows like ink.
 
@@ -640,6 +699,33 @@
             // The outline follows with grace
             xTo(mouseX);
             yTo(mouseY);
+
+            // Parallax Effect for Active Chapter
+            if (!isScrolling && chapters[currentChapter]) {
+                const content = chapters[currentChapter].querySelector('.chapter-content');
+                const bg = chapters[currentChapter].querySelector('.bg-image');
+
+                const xPct = (mouseX / window.innerWidth - 0.5);
+                const yPct = (mouseY / window.innerHeight - 0.5);
+
+                if(content) {
+                    gsap.to(content, {
+                        x: -xPct * 40,
+                        y: -yPct * 40,
+                        duration: 1,
+                        ease: 'power2.out'
+                    });
+                }
+
+                if(bg) {
+                    gsap.to(bg, {
+                        x: xPct * 30,
+                        y: yPct * 30,
+                        duration: 1,
+                        ease: 'power2.out'
+                    });
+                }
+            }
         });
 
         // Interactive states
@@ -736,6 +822,14 @@
             detailTitle.textContent = title;
             detailDescription.textContent = description;
             detailView.classList.add('visible');
+
+            // Pop Animation
+            const content = detailView.querySelector('.detail-content');
+            gsap.fromTo(content,
+                { scale: 0.8, opacity: 0 },
+                { scale: 1, opacity: 1, duration: 0.5, ease: 'back.out(1.7)' }
+            );
+
             closeDetailBtn.focus();
         }
 
@@ -833,6 +927,19 @@
             }
         });
 
+        // --- SECTION 5.5: TIMELINE INTERACTION ---
+        const timeline = document.getElementById('thread-timeline');
+        timeline.addEventListener('click', (e) => {
+            const rect = timeline.getBoundingClientRect();
+            const x = e.clientX - rect.left;
+            const pct = Math.max(0, Math.min(1, x / rect.width)); // Clamp between 0 and 1
+            const targetIndex = Math.round(pct * (numChapters - 1));
+
+            if (targetIndex !== currentChapter) {
+                goToChapter(targetIndex);
+            }
+        });
+
         // This is the correct goToChapter function
         function goToChapter(index) {
             if (isScrolling) return;
@@ -840,6 +947,13 @@
 
             // Deactivate all chapters
             chapters.forEach(ch => ch.classList.remove('active'));
+
+            // Prepare next chapter text
+            const nextChapter = chapters[index];
+            const titleSpans = nextChapter.querySelectorAll('.chapter-title span');
+            const descSpans = nextChapter.querySelectorAll('.chapter-description span');
+
+            gsap.set([titleSpans, descSpans], { y: 20, opacity: 0 });
 
             gsap.to(container, {
                 x: -index * window.innerWidth,
@@ -850,6 +964,25 @@
                     currentChapter = index;
                     // Activate the current chapter's content animations
                     chapters[currentChapter].classList.add('active');
+
+                    // Animate Text
+                    gsap.to(titleSpans, {
+                        y: 0,
+                        opacity: 1,
+                        duration: 0.8,
+                        stagger: 0.05,
+                        ease: 'power3.out'
+                    });
+
+                    gsap.to(descSpans, {
+                        y: 0,
+                        opacity: 0.8,
+                        duration: 0.8,
+                        stagger: 0.02,
+                        delay: 0.4,
+                        ease: 'power3.out'
+                    });
+
                     playCurrentAmbientSound();
                 }
             });
@@ -870,6 +1003,87 @@
                 ease: 'power4.inOut'
             });
         }
+
+        // --- SECTION 6: ATMOSPHERIC DUST ---
+        class DustSystem {
+            constructor() {
+                this.canvas = document.getElementById('dust-canvas');
+                this.ctx = this.canvas.getContext('2d');
+                this.particles = [];
+                this.numParticles = 50; // Not too many to avoid clutter
+                this.resize();
+
+                window.addEventListener('resize', () => this.resize());
+
+                // Initialize particles
+                for(let i = 0; i < this.numParticles; i++) {
+                    this.particles.push(this.createParticle());
+                }
+
+                this.animate();
+            }
+
+            resize() {
+                this.canvas.width = window.innerWidth;
+                this.canvas.height = window.innerHeight;
+            }
+
+            createParticle() {
+                return {
+                    x: Math.random() * this.canvas.width,
+                    y: Math.random() * this.canvas.height,
+                    vx: (Math.random() - 0.5) * 0.5,
+                    vy: (Math.random() - 0.5) * 0.5,
+                    size: Math.random() * 2 + 0.5,
+                    alpha: Math.random() * 0.3 + 0.1
+                };
+            }
+
+            animate() {
+                this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+
+                this.particles.forEach(p => {
+                    // Update position
+                    p.x += p.vx;
+                    p.y += p.vy;
+
+                    // Mouse interaction
+                    const dx = mouseX - p.x;
+                    const dy = mouseY - p.y;
+                    const dist = Math.sqrt(dx * dx + dy * dy);
+                    if (dist < 100) {
+                        const angle = Math.atan2(dy, dx);
+                        const force = (100 - dist) / 100;
+                        p.vx -= Math.cos(angle) * force * 0.02;
+                        p.vy -= Math.sin(angle) * force * 0.02;
+                    }
+
+                    // Damping
+                    p.vx *= 0.99;
+                    p.vy *= 0.99;
+
+                    // Min speed
+                    if (Math.abs(p.vx) < 0.1) p.vx += (Math.random() - 0.5) * 0.01;
+                    if (Math.abs(p.vy) < 0.1) p.vy += (Math.random() - 0.5) * 0.01;
+
+                    // Wrap around
+                    if (p.x < 0) p.x = this.canvas.width;
+                    if (p.x > this.canvas.width) p.x = 0;
+                    if (p.y < 0) p.y = this.canvas.height;
+                    if (p.y > this.canvas.height) p.y = 0;
+
+                    // Draw
+                    this.ctx.fillStyle = `rgba(255, 255, 255, ${p.alpha})`;
+                    this.ctx.beginPath();
+                    this.ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+                    this.ctx.fill();
+                });
+
+                requestAnimationFrame(() => this.animate());
+            }
+        }
+
+        new DustSystem();
     });
     </script>
 </body>
