@@ -48,6 +48,7 @@
     z-index: -1;
     transform: scale(1.05); /* Start slightly zoomed in */
     transition: transform 12s ease-in-out; /* A long, gentle transition for the zoom effect */
+    filter: url(#distortionFilter);
 }
 
 @keyframes float {
