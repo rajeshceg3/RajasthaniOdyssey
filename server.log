@@ -1,6 +1,0 @@
-127.0.0.1 - - [25/Jan/2026 11:17:20] "GET /index.html HTTP/1.1" 200 -
-127.0.0.1 - - [25/Jan/2026 11:17:21] "GET /locations.css HTTP/1.1" 200 -
-127.0.0.1 - - [25/Jan/2026 11:18:17] "GET /index.html HTTP/1.1" 200 -
-127.0.0.1 - - [25/Jan/2026 11:18:17] "GET /locations.css HTTP/1.1" 200 -
-127.0.0.1 - - [25/Jan/2026 11:18:46] "GET /index.html HTTP/1.1" 200 -
-127.0.0.1 - - [25/Jan/2026 11:18:46] "GET /locations.css HTTP/1.1" 200 -
