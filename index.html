@@ -20,497 +20,6 @@
     <link rel="preload" href="https://assets.codepen.io/134442/pushkar.mp3" as="audio">
 
     <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.2/dist/gsap.min.js"></script>
-
-    <style>
-        /*
-            Jony Ive: The Philosophy of Form
-
-            1.  The Canvas: The body is our single, seamless canvas. We forbid the profane vertical scrollbar. 
-                The background is not white; it is #FDFBF5, "Canvas White". It is the color of sun-bleached linen. Warm, soft, organic.
-
-            2.  Typography: A single, humanist typeface, "Manrope". It is our stand-in for the custom "Aravalli Sans". 
-                Hierarchy is achieved through weight and opacity, never through vulgar boldness or brash color.
-
-            3.  The Palette: The UI is relentlessly monochromatic. Color is reserved for content. It is the soul of the place.
-                We use CSS variables (--accent-color) as a vessel, which JavaScript will fill with the essence of each city.
-
-            4.  Motion: Motion is not a gimmick. It communicates physicality. Every transition has weight, inertia, and a natural easing.
-                It is never abrupt. We use GSAP, a tool of precision, to craft this digital physics.
-        */
-
-        :root {
-            --canvas-white: #FDFBF5;
-            --charcoal-text: #33312E;
-            --soft-grey-ui: #A8A5A0;
-            --accent-color: #FADADD; /* Jaipur's Soft Pink */
-            --transition-curve: cubic-bezier(0.65, 0, 0.35, 1);
-            --transition-duration: 0.8s;
-        }
-
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-        }
-
-        html, body {
-            width: 100%;
-            height: 100%;
-            overflow: hidden; /* No scrollbars. We control the movement. */
-            background-color: var(--canvas-white);
-            font-family: 'Manrope', sans-serif;
-            color: var(--charcoal-text);
-            text-rendering: optimizeLegibility;
-            -webkit-font-smoothing: antialiased;
-        }
-
-        .noise-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            pointer-events: none;
-            z-index: 9000;
-            opacity: 0.07;
-            mix-blend-mode: overlay;
-            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
-        }
-
-        .cursor-dot,
-        .cursor-outline {
-            position: fixed;
-            top: 0;
-            left: 0;
-            transform: translate(-50%, -50%);
-            border-radius: 50%;
-            z-index: 9999;
-            pointer-events: none;
-        }
-
-        .cursor-dot {
-            width: 8px;
-            height: 8px;
-            background-color: var(--charcoal-text);
-        }
-
-        .cursor-outline {
-            width: 40px;
-            height: 40px;
-            border: 1px solid var(--charcoal-text);
-            transition: width 0.2s, height 0.2s, background-color 0.2s;
-            mix-blend-mode: difference;
-            color: white; /* For border color in difference mode */
-            border-color: white;
-        }
-
-        .cursor-outline.hover {
-            width: 60px;
-            height: 60px;
-            background-color: rgba(255, 255, 255, 0.1);
-            backdrop-filter: invert(1);
-            border-color: transparent;
-        }
-
-        /* Hide default cursor */
-        body {
-            cursor: none;
-        }
-
-        /* Ensure cursor is visible on touch devices or handle it via JS (usually hidden) */
-        @media (hover: none) and (pointer: coarse) {
-            .cursor-dot, .cursor-outline {
-                display: none;
-            }
-            body {
-                cursor: auto;
-            }
-        }
-
-        /* CHAPTER 1: THE UNVEILING */
-        .unveiling {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: #000;
-            z-index: 1000;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            pointer-events: auto; /* Enable clicking to skip */
-            transition: opacity 2s var(--transition-curve);
-            cursor: pointer;
-        }
-
-        .unveiling.hidden {
-            opacity: 0;
-            pointer-events: none;
-        }
-
-        .unveiling .word {
-            font-size: 5rem;
-            font-weight: 300;
-            color: var(--canvas-white);
-            opacity: 0;
-            transform: scale(0.9);
-            /* This animation simulates the sand coalescing and then blowing away. */
-            animation: unveil-sequence 6s forwards; 
-            animation-timing-function: var(--transition-curve);
-        }
-
-        @keyframes unveil-sequence {
-            0% { opacity: 0; transform: scale(0.9); }
-            30% { opacity: 1; transform: scale(1); } /* The word appears */
-            70% { opacity: 1; transform: scale(1); } /* It holds, allowing the sound to resonate */
-            100% { opacity: 0; transform: scale(1.1); } /* It dissipates */
-        }
-
-        /* CHAPTER 2: THE CANVAS & ITS CHAPTERS */
-        #maru-canvas {
-            width: 100%;
-            height: 100%;
-            position: relative;
-            opacity: 0;
-            transition: opacity 1s var(--transition-curve) 5.5s; /* Fade in after unveiling */
-        }
-        #maru-canvas.visible {
-            opacity: 1;
-        }
-        
-        .chapters-container {
-            display: flex;
-            width: 500%; /* 100% for each of the 5 chapters */
-            height: 100%;
-            position: absolute;
-            top: 0;
-            left: 0;
-        }
-
-        .chapter {
-            width: 100vw;
-            height: 100vh;
-            position: relative;
-            display: flex;
-            align-items: center;
-            padding: 0 8vw;
-        }
-
-        .chapter-content {
-            max-width: 450px;
-        }
-        
-        .chapter-title {
-            font-family: 'Playfair Display', serif;
-            font-style: italic;
-            font-size: 5rem;
-            font-weight: 300;
-            line-height: 1.1;
-            margin-bottom: 2rem;
-            transform: translateY(20px);
-            opacity: 0;
-            transition: all 1s var(--transition-curve);
-        }
-
-        .glass-card {
-            background: rgba(255, 255, 255, 0.45);
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
-            border: 1px solid rgba(255, 255, 255, 0.5);
-            padding: 3rem;
-            border-radius: 16px;
-            box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.05);
-        }
-        .chapter.active .chapter-title {
-            transform: translateY(0);
-            opacity: 1;
-        }
-
-        /* Split Text Animation Classes */
-        .chapter-title span, .chapter-description span {
-            display: inline-block;
-        }
-
-        .chapter-description {
-            font-size: 1.1rem;
-            font-weight: 400;
-            line-height: 1.6;
-            color: var(--charcoal-text);
-            opacity: 0.8;
-            margin-bottom: 2.5rem;
-        }
-
-        .landmark {
-            display: table; /* Or block with fit-content */
-            width: fit-content;
-            font-size: 1.2rem;
-            font-weight: 500;
-            text-decoration: none;
-            color: var(--charcoal-text);
-            padding: 8px 16px;
-            margin: 0 0 1rem -16px; /* Negative left margin to align text visually with paragraph, positive bottom for spacing */
-            position: relative;
-            cursor: pointer;
-            border-radius: 30px;
-            transition: transform 0.4s ease, color 0.4s ease;
-            overflow: hidden;
-            z-index: 1;
-        }
-
-        .landmark::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: var(--accent-color);
-            transform: translateX(-101%);
-            transition: transform 0.5s cubic-bezier(0.19, 1, 0.22, 1);
-            z-index: -1;
-            border-radius: 30px;
-        }
-
-        /* No underline - we use a soft background fill */
-        .landmark:hover, .landmark:focus {
-            /* background-color: rgba(255, 255, 255, 0.4); Removed for new effect */
-            transform: translateX(10px);
-            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
-            /* color: var(--canvas-white);  Optional: change text color if accent is dark */
-        }
-
-        .landmark:hover::before, .landmark:focus::before {
-            transform: translateX(0);
-        }
-
-        .landmark:focus, #sound-toggle:focus, .close-btn:focus {
-            outline: 2px solid var(--accent-color);
-            outline-offset: 4px;
-        }
-        
-        /* The Artisan's Hand */
-        .artisan-hand {
-            position: fixed;
-            bottom: 40px;
-            right: 120px;
-            width: 80px;
-            height: 80px;
-            border-radius: 50%;
-            background: transparent;
-            border: 1px solid rgba(168, 165, 160, 0.3);
-            cursor: pointer;
-            overflow: hidden;
-            transition: border-color 0.5s var(--transition-curve), box-shadow 0.5s var(--transition-curve);
-        }
-        .artisan-hand:hover {
-            border-color: rgba(168, 165, 160, 0.7);
-            box-shadow: 0 0 15px rgba(0,0,0,0.05);
-        }
-        .artisan-hand video {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            opacity: 0;
-            transition: opacity 0.5s var(--transition-curve);
-        }
-        .artisan-hand:hover video {
-            opacity: 1;
-        }
-        
-        /* The Sound Toggle */
-        #sound-toggle {
-            position: fixed;
-            bottom: 40px;
-            right: 40px;
-            width: 50px;
-            height: 50px;
-            background-color: transparent;
-            border: 1px solid var(--soft-grey-ui);
-            border-radius: 50%;
-            cursor: pointer;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            transition: background-color 0.4s var(--transition-curve);
-        }
-        #sound-toggle:hover {
-            background-color: rgba(0,0,0,0.05);
-        }
-        #sound-toggle svg {
-            width: 20px;
-            height: 20px;
-            stroke: var(--charcoal-text);
-            stroke-width: 1.5;
-            stroke-linecap: round;
-            stroke-linejoin: round;
-            fill: none;
-        }
-
-        /* CHAPTER 3: THE DETAIL VIEW (MODAL) */
-        #detail-view {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100vw;
-            height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            background-color: rgba(253, 251, 245, 0.7); /* Translucent Canvas White */
-            backdrop-filter: blur(10px);
-            -webkit-backdrop-filter: blur(10px);
-            z-index: 500;
-            opacity: 0;
-            pointer-events: none;
-            transition: opacity var(--transition-duration) var(--transition-curve);
-        }
-        #detail-view.visible {
-            opacity: 1;
-            pointer-events: auto;
-        }
-        
-        .detail-content {
-            background: var(--canvas-white);
-            padding: 4rem;
-            max-width: 600px;
-            text-align: center;
-            border-radius: 4px; /* A subtle radius, honoring precision. */
-            box-shadow: 0 30px 60px rgba(0,0,0,0.12);
-            transform: scale(0.95);
-            transition: transform var(--transition-duration) var(--transition-curve);
-        }
-        #detail-view.visible .detail-content {
-            transform: scale(1);
-        }
-        .detail-emoji {
-            font-size: 5rem;
-            line-height: 1;
-            margin-bottom: 1rem;
-            transform: scale(0.5);
-            opacity: 0;
-            transition: transform 0.6s var(--transition-curve), opacity 0.6s var(--transition-curve);
-        }
-        #detail-view.visible .detail-emoji {
-            transform: scale(1);
-            opacity: 1;
-            transition-delay: 0.2s;
-        }
-        #detail-view h2 {
-            font-weight: 400;
-            font-size: 2.5rem;
-            margin-bottom: 1rem;
-        }
-        #detail-view p {
-            font-weight: 300;
-            line-height: 1.7;
-            font-size: 1.1rem;
-            margin-bottom: 2rem;
-            opacity: 0.8;
-        }
-        #detail-view .close-btn {
-            font-size: 1rem;
-            font-weight: 500;
-            color: var(--accent-color);
-            cursor: pointer;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-        }
-
-        /* CHAPTER 4: YOUR THREAD (THE ITINERARY) */
-        /*
-            A full implementation of the 'drag-a-thread' concept is a mini-application in itself,
-            requiring complex SVG path manipulation via JavaScript. This is a visual placeholder
-            to communicate the design intent. It feels like a part of the core object, not a bolted-on feature.
-        */
-        #thread-timeline {
-            position: fixed;
-            bottom: 0;
-            left: 0;
-            width: 100%;
-            height: 100px;
-            background: linear-gradient(to top, rgba(253, 251, 245, 1), rgba(253, 251, 245, 0));
-            z-index: 400;
-            pointer-events: auto;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-        .thread-guide {
-            background: rgba(168, 165, 160, 0.2);
-            height: 1px;
-            width: 80%;
-            position: absolute;
-            bottom: 40px;
-        }
-        .thread-progress {
-            height: 2px;
-            background-color: var(--accent-color);
-            position: absolute;
-            left: 0;
-            top: 0;
-            width: 0%;
-            transition: background-color 1s ease;
-        }
-        .thread-guide-text {
-            position: absolute;
-            bottom: 15px;
-            font-size: 0.8rem;
-            color: var(--soft-grey-ui);
-            font-weight: 500;
-        }
-        .pullable-element {
-            /* In a real app, you would drag from this to create a thread. */
-            cursor: grab;
-        }
-
-        .scroll-indicator {
-            position: fixed;
-            bottom: 50px;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 80px;
-            height: 1px;
-            background-color: var(--soft-grey-ui);
-            z-index: 400;
-            animation: breathe 3s infinite ease-in-out;
-        }
-
-        @keyframes breathe {
-            0%, 100% {
-                width: 80px;
-                opacity: 0.6;
-            }
-            50% {
-                width: 120px;
-                opacity: 1;
-            }
-        }
-
-        /* Accessibility additions */
-        @media (prefers-reduced-motion: reduce) {
-          *,
-          *::before,
-          *::after {
-            animation-duration: 0.01ms !important;
-            animation-iteration-count: 1 !important;
-            transition-duration: 0.01ms !important;
-            scroll-behavior: auto !important;
-          }
-        }
-
-        button.landmark, button.close-btn {
-            background: none;
-            border: none;
-            padding: 0;
-            font: inherit;
-            color: inherit;
-            cursor: pointer;
-            text-align: left;
-        }
-
-    </style>
 </head>
 <body>
     <svg style="display: none;">
@@ -536,7 +45,7 @@
     <main id="maru-canvas">
         <div class="chapters-container" id="chapters-container">
             <!-- Chapter 1: Jaipur -->
-            <section class="chapter" data-accent-color="#F8BBD0" data-ambient-sound-src="https://assets.codepen.io/134442/jaipur.mp3">
+            <section class="chapter" data-accent-color="#E8D5C4" data-ambient-sound-src="https://assets.codepen.io/134442/jaipur.mp3">
                 <div id="bg-jaipur" class="bg-image"></div>
                 <div class="chapter-content glass-card">
                     <h1 class="chapter-title">Jaipur<br>The Rose</h1>
@@ -548,7 +57,7 @@
             </section>
 
             <!-- Chapter 2: Jodhpur -->
-            <section class="chapter" data-accent-color="#BBDEFB" data-ambient-sound-src="https://assets.codepen.io/134442/jodhpur.mp3">
+            <section class="chapter" data-accent-color="#C5D9ED" data-ambient-sound-src="https://assets.codepen.io/134442/jodhpur.mp3">
                 <div id="bg-jodhpur" class="bg-image"></div>
                 <div class="chapter-content glass-card">
                     <h1 class="chapter-title">Jodhpur<br>The Indigo</h1>
@@ -560,7 +69,7 @@
             </section>
 
             <!-- Chapter 3: Jaisalmer -->
-            <section class="chapter" data-accent-color="#FFF9C4" data-ambient-sound-src="https://assets.codepen.io/134442/jaisalmer.mp3">
+            <section class="chapter" data-accent-color="#F4E7C5" data-ambient-sound-src="https://assets.codepen.io/134442/jaisalmer.mp3">
                 <div id="bg-jaisalmer" class="bg-image"></div>
                 <div class="chapter-content glass-card">
                     <h1 class="chapter-title">Jaisalmer<br>The Golden</h1>
@@ -572,7 +81,7 @@
             </section>
 
             <!-- Chapter 4: Udaipur -->
-            <section class="chapter" data-accent-color="#E0F7FA" data-ambient-sound-src="https://assets.codepen.io/134442/udaipur.mp3">
+            <section class="chapter" data-accent-color="#D6EAE8" data-ambient-sound-src="https://assets.codepen.io/134442/udaipur.mp3">
                 <div id="bg-udaipur" class="bg-image"></div>
                 <div class="chapter-content glass-card">
                     <h1 class="chapter-title">Udaipur<br>The White</h1>
@@ -584,7 +93,7 @@
             </section>
             
             <!-- Chapter 5: The Thar -->
-            <section class="chapter" data-accent-color="#FFE0B2" data-ambient-sound-src="https://assets.codepen.io/134442/thar.mp3">
+            <section class="chapter" data-accent-color="#EEDCC6" data-ambient-sound-src="https://assets.codepen.io/134442/thar.mp3">
                 <div id="bg-thar" class="bg-image"></div>
                 <div class="chapter-content glass-card">
                     <h1 class="chapter-title">The Thar<br>The Silence</h1>
@@ -596,7 +105,7 @@
             </section>
 
             <!-- Chapter 6: Pushkar -->
-            <section class="chapter" data-accent-color="#E1BEE7" data-ambient-sound-src="https://assets.codepen.io/134442/pushkar.mp3">
+            <section class="chapter" data-accent-color="#DBC4E0" data-ambient-sound-src="https://assets.codepen.io/134442/pushkar.mp3">
                 <div id="bg-pushkar" class="bg-image"></div>
                 <div class="chapter-content glass-card">
                     <h1 class="chapter-title">Pushkar<br>The Divine</h1>
@@ -650,7 +159,6 @@
         // It gives life to the form.
 
         // --- SECTION 1: ELEMENT REFERENCES ---
-        // We gather our materials before we begin construction.
         const unveiling = document.getElementById('unveiling');
         const sarangiNote = document.getElementById('sarangi-note');
         const maruCanvas = document.getElementById('maru-canvas');
@@ -662,9 +170,6 @@
         const detailDescription = document.getElementById('detail-description');
         const closeDetailBtn = document.getElementById('close-detail-btn');
         const landmarks = document.querySelectorAll('.landmark');
-        // We will add sound controls later if the philosophy demands it. For now, silence.
-
-        // Cursor Elements
         const cursorDot = document.querySelector('.cursor-dot');
         const cursorOutline = document.querySelector('.cursor-outline');
 
@@ -675,76 +180,93 @@
         
         // --- SECTION 1.2: TEXT SPLITTING UTILITY ---
         // We fragment the language to reconstruct it with motion.
-        function splitText(element) {
+        function splitText(element, type = 'words') {
             if (!element) return;
             const text = element.innerText;
             const words = text.split(' ');
+
             element.innerHTML = words.map(word => {
                 if(word.includes('\n')) {
                     const parts = word.split('\n');
-                    return parts.map((part, i) => {
-                        return `<span>${part}</span>${i < parts.length - 1 ? '<br>' : ''}`;
+                     return parts.map((part, i) => {
+                        const content = type === 'chars'
+                            ? part.split('').map(char => `<span class="char">${char}</span>`).join('')
+                            : part;
+                        return `<span class="word">${content}</span>${i < parts.length - 1 ? '<br>' : ''}`;
                     }).join('');
                 }
-                return `<span>${word}</span>`;
+                const content = type === 'chars'
+                    ? word.split('').map(char => `<span class="char">${char}</span>`).join('')
+                    : word;
+                return `<span class="word">${content}</span>`;
             }).join(' ');
-            return element.querySelectorAll('span');
+
+            return type === 'chars' ? element.querySelectorAll('.char') : element.querySelectorAll('.word');
         }
 
         // Initialize Split Text
         chapters.forEach(chapter => {
-            splitText(chapter.querySelector('.chapter-title'));
-            splitText(chapter.querySelector('.chapter-description'));
+            splitText(chapter.querySelector('.chapter-title'), 'chars');
+            splitText(chapter.querySelector('.chapter-description'), 'words');
         });
 
-        // --- SECTION 1.5: CURSOR LOGIC ---
-        // The cursor is an extension of the user's intent. It flows like ink.
-
+        // --- SECTION 1.5: CURSOR & LIQUID LOGIC ---
         let mouseX = 0;
         let mouseY = 0;
 
-        // Initial setup to center cursor before movement
+        // Initial setup
         gsap.set(cursorDot, { xPercent: -50, yPercent: -50 });
         gsap.set(cursorOutline, { xPercent: -50, yPercent: -50 });
 
         const xTo = gsap.quickTo(cursorOutline, "x", { duration: 0.2, ease: "power3" });
         const yTo = gsap.quickTo(cursorOutline, "y", { duration: 0.2, ease: "power3" });
 
+        // Filter elements for liquid effect
+        const displacementMap = document.querySelector('#distortionFilter feDisplacementMap');
+        const turbulence = document.querySelector('#distortionFilter feTurbulence');
+
         window.addEventListener("mousemove", (e) => {
+            const velocity = Math.sqrt(Math.pow(e.movementX, 2) + Math.pow(e.movementY, 2));
             mouseX = e.clientX;
             mouseY = e.clientY;
 
-            // The dot is immediate
+            // Cursor Movement
             gsap.to(cursorDot, { x: mouseX, y: mouseY, duration: 0.01 });
-
-            // The outline follows with grace
             xTo(mouseX);
             yTo(mouseY);
 
-            // Parallax Effect for Active Chapter
+            // Liquid Distortion on Movement
+            // We gently agitate the atmosphere based on movement speed
+            const agitation = Math.min(velocity * 1.5, 60);
+
+            gsap.to(displacementMap, {
+                attr: { scale: agitation },
+                duration: 0.8,
+                ease: 'power2.out',
+                overwrite: 'auto'
+            });
+
+            // Decay
+            gsap.to(displacementMap, {
+                attr: { scale: 0 },
+                duration: 1.5,
+                delay: 0.1,
+                ease: 'power2.out',
+                overwrite: 'auto'
+            });
+
+            // Parallax
             if (!isScrolling && chapters[currentChapter]) {
                 const content = chapters[currentChapter].querySelector('.chapter-content');
                 const bg = chapters[currentChapter].querySelector('.bg-image');
-
                 const xPct = (mouseX / window.innerWidth - 0.5);
                 const yPct = (mouseY / window.innerHeight - 0.5);
 
                 if(content) {
-                    gsap.to(content, {
-                        x: -xPct * 40,
-                        y: -yPct * 40,
-                        duration: 1,
-                        ease: 'power2.out'
-                    });
+                    gsap.to(content, { x: -xPct * 40, y: -yPct * 40, duration: 1, ease: 'power2.out' });
                 }
-
                 if(bg) {
-                    gsap.to(bg, {
-                        x: xPct * 30,
-                        y: yPct * 30,
-                        duration: 1,
-                        ease: 'power2.out'
-                    });
+                    gsap.to(bg, { x: xPct * 30, y: yPct * 30, duration: 1, ease: 'power2.out' });
                 }
             }
         });
@@ -761,35 +283,19 @@
             });
         });
 
-        // Enhanced Micro-interactions for Landmarks
-        landmarks.forEach(el => {
-            el.addEventListener('mouseenter', () => {
-                // Juice the button
-                gsap.to(el, { scale: 1.05, x: 10, duration: 0.3, ease: 'back.out(1.7)' });
-                // Enlarge cursor more
-                gsap.to(cursorOutline, { scale: 1.5, duration: 0.3 });
-            });
-            el.addEventListener('mouseleave', () => {
-                gsap.to(el, { scale: 1, x: 0, duration: 0.3, ease: 'power2.out' });
-                gsap.to(cursorOutline, { scale: 1, duration: 0.3 });
-            });
-        });
-
         // Magnetic Effect
         function magneticEffect(element) {
             if (!element) return;
-
-            const xTo = gsap.quickTo(element, "x", { duration: 1, ease: "elastic.out(1, 0.3)" });
-            const yTo = gsap.quickTo(element, "y", { duration: 1, ease: "elastic.out(1, 0.3)" });
+            const xTo = gsap.quickTo(element, "x", { duration: 1, ease: "elastic.out(1, 0.4)" });
+            const yTo = gsap.quickTo(element, "y", { duration: 1, ease: "elastic.out(1, 0.4)" });
 
             element.addEventListener("mousemove", (e) => {
                 const { clientX, clientY } = e;
                 const { left, top, width, height } = element.getBoundingClientRect();
                 const x = clientX - (left + width / 2);
                 const y = clientY - (top + height / 2);
-
-                xTo(x * 0.35); // Strength of the magnet
-                yTo(y * 0.35);
+                xTo(x * 0.6);
+                yTo(y * 0.6);
             });
 
             element.addEventListener("mouseleave", () => {
@@ -800,6 +306,7 @@
 
         magneticEffect(document.querySelector('.artisan-hand'));
         magneticEffect(document.getElementById('sound-toggle'));
+        landmarks.forEach(l => magneticEffect(l));
 
 
         // --- SECTION 2: THE UNVEILING SEQUENCE ---
@@ -820,7 +327,7 @@
             unveiling.querySelector('.word').style.animationPlayState = 'running';
             unveilingAnimation = setTimeout(() => {
                 sarangiNote.volume = 0.5;
-                sarangiNote.play();
+                sarangiNote.play().catch(e => console.log('Audio autoplay blocked, continuing visual sequence.'));
                 unveilingAnimation = setTimeout(() => {
                     skipUnveiling();
                 }, 3500);
@@ -985,67 +492,56 @@
 
             // Prepare next chapter text
             const nextChapter = chapters[index];
-            const titleSpans = nextChapter.querySelectorAll('.chapter-title span');
-            const descSpans = nextChapter.querySelectorAll('.chapter-description span');
+            const titleChars = nextChapter.querySelectorAll('.chapter-title .char');
+            const descWords = nextChapter.querySelectorAll('.chapter-description .word');
 
-            gsap.set([titleSpans, descSpans], { y: 20, opacity: 0 });
+            // Reset states
+            gsap.set(titleChars, { y: 100, opacity: 0 });
+            gsap.set(descWords, { y: 20, opacity: 0 });
 
-            // SVG Distortion Animation
+            // Transition: Heavy Liquid Distortion
             const turbulence = document.querySelector('#distortionFilter feTurbulence');
             const displacement = document.querySelector('#distortionFilter feDisplacementMap');
 
             gsap.to(displacement, {
-                attr: { scale: 100 },
-                duration: 0.75,
+                attr: { scale: 200 },
+                duration: 0.8,
                 ease: 'power2.in',
                 onComplete: () => {
                     gsap.to(displacement, {
                         attr: { scale: 0 },
-                        duration: 0.75,
+                        duration: 1.2,
                         ease: 'power2.out'
                     });
                 }
             });
 
-            gsap.to(turbulence, {
-                attr: { baseFrequency: '0.05 0.05' },
-                duration: 0.75,
-                ease: 'power2.in',
-                onComplete: () => {
-                    gsap.to(turbulence, {
-                        attr: { baseFrequency: '0.01 0.005' },
-                        duration: 0.75,
-                        ease: 'power2.out'
-                    });
-                }
-            });
-
+            // Slide
             gsap.to(container, {
                 x: -index * window.innerWidth,
-                duration: 1.5,
-                ease: 'power4.inOut',
+                duration: 1.6,
+                ease: 'power3.inOut',
                 onComplete: () => {
                     isScrolling = false;
                     currentChapter = index;
-                    // Activate the current chapter's content animations
                     chapters[currentChapter].classList.add('active');
 
-                    // Animate Text (Enhanced Stagger)
-                    gsap.to(titleSpans, {
+                    // Fluid Text Entry
+                    gsap.to(titleChars, {
                         y: 0,
                         opacity: 1,
-                        duration: 1.2,
-                        stagger: 0.1,
-                        ease: 'power3.out'
+                        duration: 1,
+                        stagger: 0.02,
+                        ease: 'back.out(1.2)'
                     });
 
-                    gsap.to(descSpans, {
+                    gsap.to(descWords, {
                         y: 0,
                         opacity: 0.8,
-                        duration: 1.2,
-                        stagger: 0.05,
-                        delay: 0.4,
-                        ease: 'power3.out'
+                        duration: 1,
+                        stagger: 0.01,
+                        delay: 0.2,
+                        ease: 'power2.out'
                     });
 
                     playCurrentAmbientSound();
@@ -1075,16 +571,14 @@
                 this.canvas = document.getElementById('dust-canvas');
                 this.ctx = this.canvas.getContext('2d');
                 this.particles = [];
-                this.numParticles = 50; // Not too many to avoid clutter
+                this.numParticles = 80;
                 this.resize();
 
                 window.addEventListener('resize', () => this.resize());
 
-                // Initialize particles
                 for(let i = 0; i < this.numParticles; i++) {
                     this.particles.push(this.createParticle());
                 }
-
                 this.animate();
             }
 
@@ -1097,53 +591,54 @@
                 return {
                     x: Math.random() * this.canvas.width,
                     y: Math.random() * this.canvas.height,
-                    vx: (Math.random() - 0.5) * 0.5,
-                    vy: (Math.random() - 0.5) * 0.5,
+                    vx: (Math.random() - 0.5) * 0.2,
+                    vy: (Math.random() - 0.5) * 0.2,
                     size: Math.random() * 2 + 0.5,
-                    alpha: Math.random() * 0.3 + 0.1
+                    alpha: Math.random() * 0.3 + 0.1,
+                    baseAlpha: Math.random() * 0.3 + 0.1
                 };
             }
 
             animate() {
                 this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
 
+                // Calculate wind based on mouse X position relative to center
+                const wind = (mouseX - window.innerWidth / 2) * 0.0001;
+
                 this.particles.forEach(p => {
-                    // Update position
-                    p.x += p.vx;
+                    p.x += p.vx + wind;
                     p.y += p.vy;
 
-                    // Mouse interaction
+                    // Interaction
                     const dx = mouseX - p.x;
                     const dy = mouseY - p.y;
                     const dist = Math.sqrt(dx * dx + dy * dy);
-                    if (dist < 100) {
+                    if (dist < 150) {
                         const angle = Math.atan2(dy, dx);
-                        const force = (100 - dist) / 100;
-                        p.vx -= Math.cos(angle) * force * 0.02;
-                        p.vy -= Math.sin(angle) * force * 0.02;
+                        const force = (150 - dist) / 150;
+                        p.vx -= Math.cos(angle) * force * 0.01;
+                        p.vy -= Math.sin(angle) * force * 0.01;
+                        p.alpha = Math.min(p.alpha + 0.02, 0.8);
+                    } else {
+                        if(p.alpha > p.baseAlpha) p.alpha -= 0.01;
                     }
 
-                    // Damping
-                    p.vx *= 0.99;
-                    p.vy *= 0.99;
+                    p.vx *= 0.98;
+                    p.vy *= 0.98;
 
-                    // Min speed
                     if (Math.abs(p.vx) < 0.1) p.vx += (Math.random() - 0.5) * 0.01;
                     if (Math.abs(p.vy) < 0.1) p.vy += (Math.random() - 0.5) * 0.01;
 
-                    // Wrap around
                     if (p.x < 0) p.x = this.canvas.width;
                     if (p.x > this.canvas.width) p.x = 0;
                     if (p.y < 0) p.y = this.canvas.height;
                     if (p.y > this.canvas.height) p.y = 0;
 
-                    // Draw
                     this.ctx.fillStyle = `rgba(255, 255, 255, ${p.alpha})`;
                     this.ctx.beginPath();
                     this.ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
                     this.ctx.fill();
                 });
-
                 requestAnimationFrame(() => this.animate());
             }
         }
