@@ -1,4 +1,516 @@
 /*
+    Jony Ive: The Philosophy of Form
+
+    1.  The Canvas: The body is our single, seamless canvas. We forbid the profane vertical scrollbar.
+        The background is not white; it is #FDFBF5, "Canvas White". It is the color of sun-bleached linen. Warm, soft, organic.
+
+    2.  Typography: A single, humanist typeface, "Manrope". It is our stand-in for the custom "Aravalli Sans".
+        Hierarchy is achieved through weight and opacity, never through vulgar boldness or brash color.
+
+    3.  The Palette: The UI is relentlessly monochromatic. Color is reserved for content. It is the soul of the place.
+        We use CSS variables (--accent-color) as a vessel, which JavaScript will fill with the essence of each city.
+
+    4.  Motion: Motion is not a gimmick. It communicates physicality. Every transition has weight, inertia, and a natural easing.
+        It is never abrupt. We use GSAP, a tool of precision, to craft this digital physics.
+*/
+
+:root {
+    --canvas-white: #F9F7F2; /* Slightly warmer, more organic white */
+    --charcoal-text: #4A4845; /* Softer charcoal */
+    --soft-grey-ui: #B0AEA9;
+    --accent-color: #E8D5C4; /* Soft Earthy Pink default */
+    --transition-curve: cubic-bezier(0.22, 1, 0.36, 1); /* Apple-esque easing */
+    --transition-duration: 1.2s;
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+html, body {
+    width: 100%;
+    height: 100%;
+    overflow: hidden; /* No scrollbars. We control the movement. */
+    background-color: var(--canvas-white);
+    font-family: 'Manrope', sans-serif;
+    color: var(--charcoal-text);
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+}
+
+.noise-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 9000;
+    opacity: 0.06;
+    mix-blend-mode: multiply;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+}
+
+.cursor-dot,
+.cursor-outline {
+    position: fixed;
+    top: 0;
+    left: 0;
+    transform: translate(-50%, -50%);
+    border-radius: 50%;
+    z-index: 9999;
+    pointer-events: none;
+}
+
+.cursor-dot {
+    width: 8px;
+    height: 8px;
+    background-color: var(--charcoal-text);
+}
+
+.cursor-outline {
+    width: 40px;
+    height: 40px;
+    border: 1px solid rgba(74, 72, 69, 0.5);
+    transition: width 0.4s var(--transition-curve), height 0.4s var(--transition-curve), background-color 0.4s, border-color 0.4s;
+    mix-blend-mode: exclusion;
+    z-index: 9999;
+    pointer-events: none;
+}
+
+.cursor-outline.hover {
+    width: 80px;
+    height: 80px;
+    background-color: rgba(255, 255, 255, 0.9);
+    border-color: transparent;
+    mix-blend-mode: exclusion;
+}
+
+/* Hide default cursor */
+body {
+    cursor: none;
+}
+
+/* Ensure cursor is visible on touch devices or handle it via JS (usually hidden) */
+@media (hover: none) and (pointer: coarse) {
+    .cursor-dot, .cursor-outline {
+        display: none;
+    }
+    body {
+        cursor: auto;
+    }
+}
+
+/* CHAPTER 1: THE UNVEILING */
+.unveiling {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: #000;
+    z-index: 1000;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    pointer-events: auto;
+    cursor: pointer;
+    clip-path: circle(150% at 50% 50%);
+    transition: clip-path 2.5s cubic-bezier(0.77, 0, 0.175, 1), opacity 0.5s ease 2s;
+}
+
+.unveiling.hidden {
+    clip-path: circle(0% at 50% 50%);
+    pointer-events: none;
+    opacity: 0;
+}
+
+.unveiling .word {
+    font-size: 5rem;
+    font-weight: 300;
+    color: var(--canvas-white);
+    opacity: 0;
+    transform: scale(0.9);
+    /* This animation simulates the sand coalescing and then blowing away. */
+    animation: unveil-sequence 6s forwards;
+    animation-timing-function: var(--transition-curve);
+}
+
+@keyframes unveil-sequence {
+    0% { opacity: 0; transform: scale(0.9); }
+    30% { opacity: 1; transform: scale(1); } /* The word appears */
+    70% { opacity: 1; transform: scale(1); } /* It holds, allowing the sound to resonate */
+    100% { opacity: 0; transform: scale(1.1); } /* It dissipates */
+}
+
+/* CHAPTER 2: THE CANVAS & ITS CHAPTERS */
+#maru-canvas {
+    width: 100%;
+    height: 100%;
+    position: relative;
+    opacity: 0;
+    transition: opacity 2s ease-out; /* Fade in gently when revealed */
+}
+#maru-canvas.visible {
+    opacity: 1;
+}
+
+.chapters-container {
+    display: flex;
+    width: 500%; /* 100% for each of the 5 chapters */
+    height: 100%;
+    position: absolute;
+    top: 0;
+    left: 0;
+}
+
+.chapter {
+    width: 100vw;
+    height: 100vh;
+    position: relative;
+    display: flex;
+    align-items: center;
+    padding: 0 8vw;
+}
+
+.chapter-content {
+    max-width: 450px;
+}
+
+.chapter-title {
+    font-family: 'Playfair Display', serif;
+    font-style: italic;
+    font-size: 5rem;
+    font-weight: 300;
+    line-height: 1.1;
+    margin-bottom: 2rem;
+    transform: translateY(20px);
+    opacity: 0;
+    transition: all 1s var(--transition-curve);
+}
+
+.glass-card {
+    background: rgba(255, 255, 255, 0.3);
+    backdrop-filter: blur(20px) saturate(180%);
+    -webkit-backdrop-filter: blur(20px) saturate(180%);
+    border: 1px solid rgba(255, 255, 255, 0.6);
+    padding: 3.5rem;
+    border-radius: 24px; /* More rounded, softer */
+    box-shadow:
+        0 20px 40px rgba(0, 0, 0, 0.04),
+        0 1px 3px rgba(0, 0, 0, 0.05),
+        inset 0 0 0 1px rgba(255, 255, 255, 0.4);
+    position: relative;
+    overflow: hidden;
+    transition: transform 0.6s var(--transition-curve), box-shadow 0.6s var(--transition-curve);
+}
+
+/* Subtle tint based on accent color */
+.glass-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: var(--accent-color);
+    opacity: 0.05;
+    pointer-events: none;
+    z-index: -1;
+}
+.chapter.active .chapter-title {
+    transform: translateY(0);
+    opacity: 1;
+}
+
+/* Split Text Animation Classes */
+.chapter-title span, .chapter-description span {
+    display: inline-block;
+}
+
+.chapter-description {
+    font-size: 1.1rem;
+    font-weight: 400;
+    line-height: 1.6;
+    color: var(--charcoal-text);
+    opacity: 0.8;
+    margin-bottom: 2.5rem;
+}
+
+.landmark {
+    display: flex;
+    align-items: center;
+    width: fit-content;
+    font-size: 1.2rem;
+    font-weight: 500;
+    text-decoration: none;
+    color: var(--charcoal-text);
+    padding: 12px 24px;
+    margin: 0 0 1.2rem -24px;
+    position: relative;
+    cursor: pointer;
+    border-radius: 100px;
+    transition: transform 0.6s var(--transition-curve), color 0.4s ease, box-shadow 0.4s ease;
+    overflow: hidden;
+    z-index: 1;
+    background: rgba(255, 255, 255, 0.0);
+}
+
+.landmark::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: var(--accent-color);
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform 0.6s var(--transition-curve);
+    z-index: -1;
+    border-radius: 100px;
+    opacity: 0.3; /* Pastel fill */
+}
+
+/* No underline - we use a soft background fill */
+.landmark:hover, .landmark:focus {
+    transform: translateX(5px) scale(1.02);
+    /* box-shadow: 0 10px 20px -5px rgba(0,0,0,0.05); */
+}
+
+.landmark:hover::before, .landmark:focus::before {
+    transform: scaleX(1);
+}
+
+.landmark:focus, #sound-toggle:focus, .close-btn:focus {
+    outline: 2px solid var(--accent-color);
+    outline-offset: 4px;
+}
+
+/* The Artisan's Hand */
+.artisan-hand {
+    position: fixed;
+    bottom: 40px;
+    right: 120px;
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    background: transparent;
+    border: 1px solid rgba(168, 165, 160, 0.3);
+    cursor: pointer;
+    overflow: hidden;
+    transition: border-color 0.5s var(--transition-curve), box-shadow 0.5s var(--transition-curve);
+}
+.artisan-hand:hover {
+    border-color: rgba(168, 165, 160, 0.7);
+    box-shadow: 0 0 15px rgba(0,0,0,0.05);
+}
+.artisan-hand video {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    opacity: 0;
+    transition: opacity 0.5s var(--transition-curve);
+}
+.artisan-hand:hover video {
+    opacity: 1;
+}
+
+/* The Sound Toggle */
+#sound-toggle {
+    position: fixed;
+    bottom: 40px;
+    right: 40px;
+    width: 50px;
+    height: 50px;
+    background-color: transparent;
+    border: 1px solid var(--soft-grey-ui);
+    border-radius: 50%;
+    cursor: pointer;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    transition: background-color 0.4s var(--transition-curve);
+}
+#sound-toggle:hover {
+    background-color: rgba(0,0,0,0.05);
+}
+#sound-toggle svg {
+    width: 20px;
+    height: 20px;
+    stroke: var(--charcoal-text);
+    stroke-width: 1.5;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    fill: none;
+}
+
+/* CHAPTER 3: THE DETAIL VIEW (MODAL) */
+#detail-view {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: rgba(253, 251, 245, 0.7); /* Translucent Canvas White */
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    z-index: 500;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity var(--transition-duration) var(--transition-curve);
+}
+#detail-view.visible {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+.detail-content {
+    background: var(--canvas-white);
+    padding: 4rem;
+    max-width: 600px;
+    text-align: center;
+    border-radius: 4px; /* A subtle radius, honoring precision. */
+    box-shadow: 0 30px 60px rgba(0,0,0,0.12);
+    transform: scale(0.95);
+    transition: transform var(--transition-duration) var(--transition-curve);
+}
+#detail-view.visible .detail-content {
+    transform: scale(1);
+}
+.detail-emoji {
+    font-size: 5rem;
+    line-height: 1;
+    margin-bottom: 1rem;
+    transform: scale(0.5);
+    opacity: 0;
+    transition: transform 0.6s var(--transition-curve), opacity 0.6s var(--transition-curve);
+}
+#detail-view.visible .detail-emoji {
+    transform: scale(1);
+    opacity: 1;
+    transition-delay: 0.2s;
+}
+#detail-view h2 {
+    font-weight: 400;
+    font-size: 2.5rem;
+    margin-bottom: 1rem;
+}
+#detail-view p {
+    font-weight: 300;
+    line-height: 1.7;
+    font-size: 1.1rem;
+    margin-bottom: 2rem;
+    opacity: 0.8;
+}
+#detail-view .close-btn {
+    font-size: 1rem;
+    font-weight: 500;
+    color: var(--accent-color);
+    cursor: pointer;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+/* CHAPTER 4: YOUR THREAD (THE ITINERARY) */
+/*
+    A full implementation of the 'drag-a-thread' concept is a mini-application in itself,
+    requiring complex SVG path manipulation via JavaScript. This is a visual placeholder
+    to communicate the design intent. It feels like a part of the core object, not a bolted-on feature.
+*/
+#thread-timeline {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 100px;
+    background: linear-gradient(to top, rgba(253, 251, 245, 1), rgba(253, 251, 245, 0));
+    z-index: 400;
+    pointer-events: auto;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.thread-guide {
+    background: rgba(168, 165, 160, 0.2);
+    height: 1px;
+    width: 80%;
+    position: absolute;
+    bottom: 40px;
+}
+.thread-progress {
+    height: 2px;
+    background-color: var(--accent-color);
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 0%;
+    transition: background-color 1s ease;
+}
+.thread-guide-text {
+    position: absolute;
+    bottom: 15px;
+    font-size: 0.8rem;
+    color: var(--soft-grey-ui);
+    font-weight: 500;
+}
+.pullable-element {
+    /* In a real app, you would drag from this to create a thread. */
+    cursor: grab;
+}
+
+.scroll-indicator {
+    position: fixed;
+    bottom: 50px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 80px;
+    height: 1px;
+    background-color: var(--soft-grey-ui);
+    z-index: 400;
+    animation: breathe 3s infinite ease-in-out;
+}
+
+@keyframes breathe {
+    0%, 100% {
+        width: 80px;
+        opacity: 0.6;
+    }
+    50% {
+        width: 120px;
+        opacity: 1;
+    }
+}
+
+/* Accessibility additions */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+button.landmark, button.close-btn {
+    background: none;
+    border: none;
+    padding: 0;
+    font: inherit;
+    color: inherit;
+    cursor: pointer;
+    text-align: left;
+}
+
+/*
     RajasthaniOdyssey - Unified Chapter Styling
     This file will contain the cohesive design language for all chapters,
     ensuring a consistent, elegant, and emotionally resonant user journey.
