@@ -25,6 +25,7 @@ document.addEventListener('DOMContentLoaded', () => {
     function splitText(element, type = 'words') {
         if (!element) return;
         const text = element.innerText;
+        element.setAttribute('aria-label', text);
         const words = text.split(' ');
 
         element.innerHTML = words.map(word => {
@@ -32,15 +33,15 @@ document.addEventListener('DOMContentLoaded', () => {
                 const parts = word.split('\n');
                  return parts.map((part, i) => {
                     const content = type === 'chars'
-                        ? part.split('').map(char => `<span class="char" style="display:inline-block;">${char}</span>`).join('')
+                        ? part.split('').map(char => `<span class="char" style="display:inline-block;" aria-hidden="true">${char}</span>`).join('')
                         : part;
-                    return `<span class="word" style="display:inline-block;">${content}</span>${i < parts.length - 1 ? '<br>' : ''}`;
+                    return `<span class="word" style="display:inline-block;" aria-hidden="true">${content}</span>${i < parts.length - 1 ? '<br>' : ''}`;
                 }).join('');
             }
             const content = type === 'chars'
-                ? word.split('').map(char => `<span class="char" style="display:inline-block;">${char}</span>`).join('')
+                ? word.split('').map(char => `<span class="char" style="display:inline-block;" aria-hidden="true">${char}</span>`).join('')
                 : word;
-            return `<span class="word" style="display:inline-block;">${content}</span>`;
+            return `<span class="word" style="display:inline-block;" aria-hidden="true">${content}</span>`;
         }).join(' ');
 
         return type === 'chars' ? element.querySelectorAll('.char') : element.querySelectorAll('.word');
@@ -49,6 +50,18 @@ document.addEventListener('DOMContentLoaded', () => {
     chapters.forEach(chapter => {
         splitText(chapter.querySelector('.chapter-title'), 'chars');
         splitText(chapter.querySelector('.chapter-description'), 'words');
+    });
+
+    // Global Focus Management
+    document.addEventListener('focusin', (e) => {
+        const target = e.target;
+        const chapter = target.closest('.chapter');
+        if (chapter) {
+            const index = chapters.indexOf(chapter);
+            if (index !== -1 && index !== currentChapter) {
+                goToChapter(index);
+            }
+        }
     });
 
     // --- SECTION 1.5: CURSOR & INTERACTION LOGIC ---
@@ -171,21 +184,33 @@ document.addEventListener('DOMContentLoaded', () => {
 
         unveiling.classList.add('hidden');
         maruCanvas.classList.add('visible');
-        chapters[0].classList.add('active');
         unveiling.removeEventListener('click', skipUnveiling);
 
-        // Trigger initial entry for first chapter
-        const titleChars = chapters[0].querySelectorAll('.chapter-title .char');
-        const descWords = chapters[0].querySelectorAll('.chapter-description .word');
+        // Check Hash for deep linking
+        const hash = window.location.hash.replace('#', '');
+        let targetIndex = 0;
+        if (hash) {
+             const idx = chapters.findIndex(ch => ch.id === `chapter-${hash}`);
+             if (idx !== -1) targetIndex = idx;
+        }
 
-        gsap.fromTo(titleChars,
-            { y: 100, opacity: 0, rotateZ: 10 },
-            { y: 0, opacity: 1, rotateZ: 0, duration: 1, stagger: 0.05, ease: 'back.out(1.7)' }
-        );
-        gsap.fromTo(descWords,
-            { y: 20, opacity: 0 },
-            { y: 0, opacity: 0.8, duration: 1, stagger: 0.02, delay: 0.5, ease: 'power2.out' }
-        );
+        if (targetIndex > 0) {
+            goToChapter(targetIndex);
+        } else {
+            chapters[0].classList.add('active');
+            // Trigger initial entry for first chapter
+            const titleChars = chapters[0].querySelectorAll('.chapter-title .char');
+            const descWords = chapters[0].querySelectorAll('.chapter-description .word');
+
+            gsap.fromTo(titleChars,
+                { y: 100, opacity: 0, rotateZ: 10 },
+                { y: 0, opacity: 1, rotateZ: 0, duration: 1, stagger: 0.05, ease: 'back.out(1.7)' }
+            );
+            gsap.fromTo(descWords,
+                { y: 20, opacity: 0 },
+                { y: 0, opacity: 0.8, duration: 1, stagger: 0.02, delay: 0.5, ease: 'power2.out' }
+            );
+        }
     }
 
     unveiling.addEventListener('click', skipUnveiling);
@@ -222,6 +247,28 @@ document.addEventListener('DOMContentLoaded', () => {
         if (e.key === 'ArrowRight' && currentChapter < numChapters - 1) goToChapter(currentChapter + 1);
         else if (e.key === 'ArrowLeft' && currentChapter > 0) goToChapter(currentChapter - 1);
     });
+
+    // Touch Navigation
+    let touchStartX = 0;
+    let touchEndX = 0;
+
+    window.addEventListener('touchstart', (e) => {
+        touchStartX = e.changedTouches[0].screenX;
+    }, { passive: true });
+
+    window.addEventListener('touchend', (e) => {
+        touchEndX = e.changedTouches[0].screenX;
+        handleSwipe();
+    }, { passive: true });
+
+    function handleSwipe() {
+        const threshold = 50;
+        if (touchEndX < touchStartX - threshold && currentChapter < numChapters - 1) {
+             goToChapter(currentChapter + 1);
+        } else if (touchEndX > touchStartX + threshold && currentChapter > 0) {
+             goToChapter(currentChapter - 1);
+        }
+    }
 
     // --- SECTION 4: DETAIL VIEW (FLIP ANIMATION) ---
     function openDetailView(title, description, emoji, triggerElement) {
@@ -338,9 +385,35 @@ document.addEventListener('DOMContentLoaded', () => {
         if (targetIndex !== currentChapter) goToChapter(targetIndex);
     });
 
+    window.addEventListener('popstate', (e) => {
+        if (isScrolling) return;
+
+        let targetIndex = 0;
+        if (e.state && typeof e.state.index === 'number') {
+            targetIndex = e.state.index;
+        } else {
+            const hash = window.location.hash.replace('#', '');
+            if (hash) {
+                const idx = chapters.findIndex(ch => ch.id === `chapter-${hash}`);
+                if (idx !== -1) targetIndex = idx;
+            }
+        }
+
+        if (targetIndex !== currentChapter) {
+             goToChapter(targetIndex);
+        }
+    });
+
     function goToChapter(index) {
         if (isScrolling) return;
         isScrolling = true;
+
+        // Update Hash
+        const city = chapters[index].id.replace('chapter-', '');
+        if (window.location.hash !== `#${city}`) {
+             history.pushState({ index: index }, '', `#${city}`);
+        }
+
         chapters.forEach(ch => ch.classList.remove('active'));
 
         const nextChapter = chapters[index];
@@ -415,7 +488,11 @@ document.addEventListener('DOMContentLoaded', () => {
                 this.isActive = true;
             this.resize();
 
-            window.addEventListener('resize', () => this.resize());
+            let resizeTimeout;
+            window.addEventListener('resize', () => {
+                clearTimeout(resizeTimeout);
+                resizeTimeout = setTimeout(() => this.resize(), 150);
+            });
                 document.addEventListener('visibilitychange', () => {
                     this.isActive = !document.hidden;
                     if (this.isActive) this.animate();
