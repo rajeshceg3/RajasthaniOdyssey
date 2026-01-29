@@ -88,18 +88,17 @@ html, body {
     mix-blend-mode: exclusion;
 }
 
-/* Hide default cursor */
-body {
-    cursor: none;
+/* Hide default cursor only if pointer is fine (mouse) */
+@media (pointer: fine) {
+    body {
+        cursor: none;
+    }
 }
 
-/* Ensure cursor is visible on touch devices or handle it via JS (usually hidden) */
+/* Ensure custom cursor is hidden on touch devices */
 @media (hover: none) and (pointer: coarse) {
     .cursor-dot, .cursor-outline {
         display: none;
-    }
-    body {
-        cursor: auto;
     }
 }
 
@@ -551,26 +550,32 @@ button.landmark, button.close-btn {
     Centralized here for proper separation of concerns.
 */
 #bg-jaipur {
+    background-color: #F4CAC3;
     background-image: url('https://images.unsplash.com/photo-1617153257577-476c24a64b2a?auto=format&fit=crop&w=1920&q=80');
 }
 
 #bg-jodhpur {
+    background-color: #B0D0E8;
     background-image: url('https://images.unsplash.com/photo-1567215272332-90117f77a8f7?auto=format&fit=crop&w=1920&q=80');
 }
 
 #bg-jaisalmer {
+    background-color: #FAE3C6;
     background-image: url('https://images.unsplash.com/photo-1545229763-834c9f792d41?auto=format&fit=crop&w=1920&q=80');
 }
 
 #bg-udaipur {
+    background-color: #C1E8E5;
     background-image: url('https://images.unsplash.com/photo-1596374071936-a57c2cb0b82a?auto=format&fit=crop&w=1920&q=80');
 }
 
 #bg-thar {
+    background-color: #E8DCCA;
     background-image: url('https://images.unsplash.com/photo-1628892945281-c17543884b23?auto=format&fit=crop&w=1920&q=80');
 }
 
 #bg-pushkar {
+    background-color: #E0C3FC;
     background-image: url('https://images.unsplash.com/photo-1587224234288-8b3681d93549?auto=format&fit=crop&w=1920&q=80');
 }
 
