@@ -1,0 +1,33 @@
+Navigating to Maru...
+Waiting for Unveiling...
+Unveiling found. Clicking to enter...
+Main canvas is visible.
+Found 6 chapters.
+Button 0: Text='Discover Hawa Mahal', Aria-Label='None'
+Button 1: Text='Journey to Amber Fort', Aria-Label='None'
+Button 2: Text='Walk the City Palace', Aria-Label='None'
+Button 3: Text='Explore Mehrangarh', Aria-Label='None'
+Button 4: Text='Meditate at Jaswant Thada', Aria-Label='None'
+Button 5: Text='Discover Umaid Bhawan', Aria-Label='None'
+Button 6: Text='Tread the Ramparts', Aria-Label='None'
+Button 7: Text='Marvel at the Havelis', Aria-Label='None'
+Button 8: Text='Traverse the Dunes', Aria-Label='None'
+Button 9: Text='Float on the Lake', Aria-Label='None'
+Button 10: Text='Wander the Palace', Aria-Label='None'
+Button 11: Text='See Jag Mandir', Aria-Label='None'
+Button 12: Text='Experience the Dawn', Aria-Label='None'
+Button 13: Text='Discover the Park', Aria-Label='None'
+Button 14: Text='Journey to Khuri', Aria-Label='None'
+Button 15: Text='Feel the Lake', Aria-Label='None'
+Button 16: Text='See the Temple', Aria-Label='None'
+Button 17: Text='Ascend to Savitri', Aria-Label='None'
+Button 18: Text='', Aria-Label='View artisan video'
+Button 19: Text='', Aria-Label='Enable sound'
+Button 20: Text='CLOSE', Aria-Label='None'
+Chapter Title Color: rgb(74, 72, 69)
+Attempting to scroll...
+Active chapter after scroll: chapter-jodhpur
+
+--- Console Logs ---
+
+--- Page Errors ---
