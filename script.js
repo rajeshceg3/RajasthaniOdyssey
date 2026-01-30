@@ -220,14 +220,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
             noteTimeout = setTimeout(() => {
             sarangiNote.volume = 0.5;
-            sarangiNote.play().catch(() => {});
+            sarangiNote.play().catch(e => console.warn('Audio play failed', e));
                 fadeTimeout = setTimeout(skipUnveiling, 3500);
         }, 2000);
     }, 500);
 
     // --- SECTION 3: SCROLLING ---
     let lastScrollTime = 0;
-    const scrollCooldown = 2000; // Slightly longer than transition to prevent accidental double-skips
+    const scrollCooldown = 1200; // Reduced to improve responsiveness
 
     window.addEventListener('wheel', (e) => {
         const now = Date.now();
@@ -271,7 +271,10 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // --- SECTION 4: DETAIL VIEW (FLIP ANIMATION) ---
+    let lastFocusedElement = null;
+
     function openDetailView(title, description, emoji, triggerElement) {
+        lastFocusedElement = triggerElement;
         detailEmoji.textContent = emoji;
         detailTitle.textContent = title;
         detailDescription.textContent = description;
@@ -309,9 +312,11 @@ document.addEventListener('DOMContentLoaded', () => {
             onComplete: () => {
                 detailView.classList.remove('visible');
                 gsap.set(content, { clearProps: "all" }); // Reset for next open
+                if (lastFocusedElement) {
+                    lastFocusedElement.focus();
+                }
             }
         });
-        if (document.activeElement) document.activeElement.blur();
     }
 
     landmarks.forEach(landmark => {
@@ -347,7 +352,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (sound) {
                     if (index === currentChapter) {
                         sound.loop = true;
-                        sound.play().catch(()=>{});
+                        sound.play().catch(e => console.warn('Ambient play failed', e));
                     } else {
                         sound.pause();
                     }
