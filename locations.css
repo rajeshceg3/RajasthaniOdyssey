@@ -630,3 +630,66 @@ button.landmark, button.close-btn {
     pointer-events: none;
     z-index: 1; /* Above background, below UI */
 }
+
+/* Mobile Responsiveness */
+@media (max-width: 768px) {
+    .chapter-title {
+        font-size: 3rem;
+        margin-bottom: 1rem;
+    }
+
+    .unveiling .word {
+        font-size: 3rem;
+    }
+
+    .chapter {
+        padding: 0 4vw;
+    }
+
+    .glass-card {
+        padding: 1.5rem;
+        width: 100%;
+    }
+
+    .chapter-content {
+        max-width: 100%;
+    }
+
+    .landmark {
+        font-size: 1rem;
+        padding: 8px 16px;
+        margin: 0 0 0.8rem -16px;
+    }
+
+    .artisan-hand {
+        width: 50px;
+        height: 50px;
+        bottom: 20px;
+        right: 80px;
+    }
+
+    #sound-toggle {
+        width: 40px;
+        height: 40px;
+        bottom: 20px;
+        right: 20px;
+    }
+
+    #thread-timeline {
+        height: 60px;
+    }
+
+    .thread-guide {
+        bottom: 20px;
+    }
+
+    .thread-guide-text {
+        bottom: 5px;
+        font-size: 0.7rem;
+    }
+
+    .scroll-indicator {
+        bottom: 20px;
+        width: 60px;
+    }
+}
