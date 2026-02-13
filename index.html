@@ -10,9 +10,11 @@
     <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@300;400;500&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400..900;1,400..900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="locations.css">
+    <link rel="stylesheet" href="tour.css">
 
     <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.2/dist/gsap.min.js"></script>
     <script src="script.js" defer></script>
+    <script src="tour.js" defer></script>
     <noscript>
         <style>
             body { overflow-y: auto !important; overflow-x: hidden !important; height: auto !important; cursor: auto !important; }
@@ -122,6 +124,10 @@
         </div>
 
         <!-- Shared UI Elements -->
+        <button id="start-tour-btn" title="Start Guided Tour" aria-label="Start Guided Tour">
+            ?
+        </button>
+
         <button class="artisan-hand" title="The Artisan's Hand" aria-label="View artisan video">
              <video src="https://assets.codepen.io/134442/potter.mp4" autoplay loop muted playsinline></video>
         </button>
