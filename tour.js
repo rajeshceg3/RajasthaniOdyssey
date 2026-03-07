@@ -120,11 +120,20 @@ document.addEventListener('DOMContentLoaded', () => {
             });
 
             // Handle Resize & Scroll
+            let ticking = false;
             const updateHandler = () => {
-                if (this.isActive) this.updatePosition(this.currentStep);
+                if (this.isActive) {
+                    if (!ticking) {
+                        window.requestAnimationFrame(() => {
+                            this.updatePosition(this.currentStep);
+                            ticking = false;
+                        });
+                        ticking = true;
+                    }
+                }
             };
 
-            window.addEventListener('resize', updateHandler);
+            window.addEventListener('resize', updateHandler, { passive: true });
             window.addEventListener('scroll', updateHandler, { capture: true, passive: true });
         }
 

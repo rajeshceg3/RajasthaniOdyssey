@@ -27,6 +27,8 @@
     pointer-events: none;
     transition: all 0.6s cubic-bezier(0.22, 1, 0.36, 1); /* Apple-esque easing */
     opacity: 0;
+    will-change: transform;
+    transform: translateZ(0);
 }
 
 .tour-spotlight.active {
