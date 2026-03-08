@@ -68,6 +68,8 @@ html, body {
     width: 8px;
     height: 8px;
     background-color: var(--charcoal-text);
+    will-change: transform;
+    transform: translateZ(0);
 }
 
 .cursor-outline {
@@ -78,6 +80,8 @@ html, body {
     mix-blend-mode: exclusion;
     z-index: 9999;
     pointer-events: none;
+    will-change: transform;
+    transform: translateZ(0);
 }
 
 .cursor-outline.hover {
@@ -205,6 +209,8 @@ html, body {
     overflow: hidden;
     transition: transform 0.6s var(--transition-curve), box-shadow 0.6s var(--transition-curve);
     transform-style: preserve-3d;
+    will-change: transform;
+    transform: translateZ(0);
 }
 
 /* Subtle tint based on accent color */
@@ -592,16 +598,17 @@ button.landmark, button.close-btn {
     background-size: cover;
     background-position: center;
     z-index: -1;
-    transform: scale(1.05); /* Start slightly zoomed in */
+    transform: scale(1.05) translateZ(0); /* Start slightly zoomed in */
     transition: transform 12s ease-in-out; /* A long, gentle transition for the zoom effect */
     filter: url(#distortionFilter);
+    will-change: transform;
 }
 
 @keyframes float {
-    0% { transform: scale(1.05) translate(0, 0); }
-    33% { transform: scale(1.08) translate(-10px, -5px); }
-    66% { transform: scale(1.06) translate(5px, 10px); }
-    100% { transform: scale(1.05) translate(0, 0); }
+    0% { transform: scale(1.05) translate(0, 0) translateZ(0); }
+    33% { transform: scale(1.08) translate(-10px, -5px) translateZ(0); }
+    66% { transform: scale(1.06) translate(5px, 10px) translateZ(0); }
+    100% { transform: scale(1.05) translate(0, 0) translateZ(0); }
 }
 
 .bg-image::after {

@@ -73,15 +73,49 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const xTo = gsap.quickTo(cursorOutline, "x", { duration: 0.2, ease: "power3" });
     const yTo = gsap.quickTo(cursorOutline, "y", { duration: 0.2, ease: "power3" });
+    const dotXTo = gsap.quickTo(cursorDot, "x", { duration: 0.01 });
+    const dotYTo = gsap.quickTo(cursorDot, "y", { duration: 0.01 });
 
     const displacementMap = document.querySelector('#distortionFilter feDisplacementMap');
+
+    // Pre-cache DOM elements and their bounding boxes
+    let winWidth = window.innerWidth;
+    let winHeight = window.innerHeight;
+
+    const chapterData = chapters.map(chapter => ({
+        element: chapter,
+        glassCard: chapter.querySelector('.glass-card'),
+        bg: chapter.querySelector('.bg-image'),
+        bgXTo: chapter.querySelector('.bg-image') ? gsap.quickTo(chapter.querySelector('.bg-image'), "x", { duration: 1, ease: "power2.out" }) : null,
+        bgYTo: chapter.querySelector('.bg-image') ? gsap.quickTo(chapter.querySelector('.bg-image'), "y", { duration: 1, ease: "power2.out" }) : null,
+        cardRotateXTo: chapter.querySelector('.glass-card') ? gsap.quickTo(chapter.querySelector('.glass-card'), "rotateX", { duration: 1, ease: "power2.out", transformPerspective: 1000 }) : null,
+        cardRotateYTo: chapter.querySelector('.glass-card') ? gsap.quickTo(chapter.querySelector('.glass-card'), "rotateY", { duration: 1, ease: "power2.out", transformPerspective: 1000 }) : null,
+        cardRect: { cardX: 0, cardY: 0 }
+    }));
+
+    function updateRects() {
+        winWidth = window.innerWidth;
+        winHeight = window.innerHeight;
+        const currentData = chapterData[currentChapter];
+        if (currentData && currentData.glassCard) {
+            const rect = currentData.glassCard.getBoundingClientRect();
+            currentData.cardRect.cardX = rect.left + rect.width / 2;
+            currentData.cardRect.cardY = rect.top + rect.height / 2;
+        }
+    }
+
+    // Initialize rects on load
+    updateRects();
+
+    window.addEventListener('resize', updateRects, { passive: true });
 
     window.addEventListener("mousemove", (e) => {
         const velocity = Math.sqrt(Math.pow(e.movementX, 2) + Math.pow(e.movementY, 2));
         mouseX = e.clientX;
         mouseY = e.clientY;
 
-        gsap.to(cursorDot, { x: mouseX, y: mouseY, duration: 0.01 });
+        dotXTo(mouseX);
+        dotYTo(mouseY);
         xTo(mouseX);
         yTo(mouseY);
 
@@ -102,41 +136,28 @@ document.addEventListener('DOMContentLoaded', () => {
         });
 
         // Parallax & 3D Tilt
-        if (!isScrolling && chapters[currentChapter]) {
-            const chapter = chapters[currentChapter];
-            const content = chapter.querySelector('.chapter-content');
-            const glassCard = chapter.querySelector('.glass-card');
-            const bg = chapter.querySelector('.bg-image');
+        if (!isScrolling && chapterData[currentChapter]) {
+            const data = chapterData[currentChapter];
 
-            const xPct = (mouseX / window.innerWidth - 0.5);
-            const yPct = (mouseY / window.innerHeight - 0.5);
+            const xPct = (mouseX / winWidth - 0.5);
+            const yPct = (mouseY / winHeight - 0.5);
 
-            if(bg) {
-                gsap.to(bg, { x: xPct * 30, y: yPct * 30, duration: 1, ease: 'power2.out' });
+            if(data.bg) {
+                data.bgXTo(xPct * 30);
+                data.bgYTo(yPct * 30);
             }
 
             // 3D Tilt for Glass Card
-            if (glassCard) {
-                 const rect = glassCard.getBoundingClientRect();
-                 const cardX = rect.left + rect.width / 2;
-                 const cardY = rect.top + rect.height / 2;
+            if (data.glassCard && data.cardRect.cardX) {
                  // Calculate distance from center of card
-                 const distX = mouseX - cardX;
-                 const distY = mouseY - cardY;
+                 const distX = mouseX - data.cardRect.cardX;
+                 const distY = mouseY - data.cardRect.cardY;
 
                  const rotateY = distX / 60;
                  const rotateX = -distY / 60;
 
-                 gsap.to(glassCard, {
-                     rotateX: rotateX,
-                     rotateY: rotateY,
-                     transformPerspective: 1000,
-                     duration: 1,
-                     ease: 'power2.out'
-                 });
-
-                 // Shimmer update (handled via CSS opacity on hover, but we can enhance position)
-                 // Setting a CSS var for mouse position could be cool too
+                 data.cardRotateXTo(rotateX);
+                 data.cardRotateYTo(rotateY);
             }
         }
     });
@@ -240,7 +261,7 @@ document.addEventListener('DOMContentLoaded', () => {
             goToChapter(currentChapter - 1);
             lastScrollTime = now;
         }
-    });
+    }, { passive: true });
 
     window.addEventListener('keydown', (e) => {
         if (isScrolling) return;
@@ -444,13 +465,16 @@ document.addEventListener('DOMContentLoaded', () => {
         });
 
         gsap.to(container, {
-            x: -index * window.innerWidth,
+            x: -index * winWidth,
             duration: 1.8, // Slower, more majestic
             ease: 'power4.inOut',
             onComplete: () => {
                 isScrolling = false;
                 currentChapter = index;
                 chapters[currentChapter].classList.add('active');
+
+                // Update rects after moving
+                updateRects();
 
                 // Cinematic Text Entry
                 gsap.to(titleChars, {
@@ -510,6 +534,7 @@ document.addEventListener('DOMContentLoaded', () => {
         resize() {
             this.canvas.width = window.innerWidth;
             this.canvas.height = window.innerHeight;
+            this.halfWidth = this.canvas.width / 2;
         }
 
         createParticle() {
@@ -527,7 +552,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (!this.isActive) return;
 
             this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
-            const wind = (mouseX - window.innerWidth / 2) * 0.00005;
+            const wind = (mouseX - this.halfWidth) * 0.00005;
 
             this.particles.forEach((p, i) => {
                 p.x += p.vx + wind;
@@ -536,8 +561,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 // Mouse Interaction (Repulsion)
                 const dx = mouseX - p.x;
                 const dy = mouseY - p.y;
-                const dist = Math.sqrt(dx * dx + dy * dy);
-                if (dist < 200) {
+                const distSq = dx * dx + dy * dy;
+
+                if (distSq < 40000) { // 200 * 200
+                    const dist = Math.sqrt(distSq);
                     const angle = Math.atan2(dy, dx);
                     const force = (200 - dist) / 200;
                     p.vx -= Math.cos(angle) * force * 0.02;
@@ -565,9 +592,10 @@ document.addEventListener('DOMContentLoaded', () => {
                     const p2 = this.particles[j];
                     const dx2 = p.x - p2.x;
                     const dy2 = p.y - p2.y;
-                    const dist2 = Math.sqrt(dx2 * dx2 + dy2 * dy2);
+                    const distSq2 = dx2 * dx2 + dy2 * dy2;
 
-                    if (dist2 < 120) {
+                    if (distSq2 < 14400) { // 120 * 120
+                        const dist2 = Math.sqrt(distSq2);
                         this.ctx.beginPath();
                         this.ctx.strokeStyle = `rgba(255, 255, 255, ${0.15 * (1 - dist2 / 120)})`;
                         this.ctx.lineWidth = 0.5;
