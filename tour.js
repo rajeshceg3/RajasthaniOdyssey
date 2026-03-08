@@ -203,64 +203,67 @@ document.addEventListener('DOMContentLoaded', () => {
                 targetEl = document.querySelector(step.target);
             }
 
-            if (!targetEl) {
-                // Center Position (Welcome Step)
-                this.spotlight.style.opacity = '0';
+            // READ PHASE
+            const viewportWidth = window.innerWidth;
+            const viewportHeight = window.innerHeight;
+            const cardRect = this.card.getBoundingClientRect();
+            let rect = null;
 
-                const cardRect = this.card.getBoundingClientRect();
-                this.card.style.top = `${window.innerHeight / 2 - cardRect.height / 2}px`;
-                this.card.style.left = `${window.innerWidth / 2 - cardRect.width / 2}px`;
+            if (targetEl) {
+                rect = targetEl.getBoundingClientRect();
+            }
 
+            // Calculate card position values during read phase
+            let cardTop, cardLeft;
+            const gap = 20;
+
+            if (!rect) {
+                cardTop = viewportHeight / 2 - cardRect.height / 2;
+                cardLeft = viewportWidth / 2 - cardRect.width / 2;
             } else {
-                this.spotlight.style.opacity = '1';
-                const rect = targetEl.getBoundingClientRect();
-                const padding = 10;
+                const preference = step.position;
 
+                if (preference === 'right') {
+                    cardLeft = rect.right + gap;
+                    cardTop = rect.top;
+                    if (cardLeft + cardRect.width > viewportWidth) cardLeft = rect.left - cardRect.width - gap;
+                } else if (preference === 'left') {
+                    cardLeft = rect.left - cardRect.width - gap;
+                    cardTop = rect.top;
+                } else if (preference === 'top') {
+                    cardTop = rect.top - cardRect.height - gap;
+                    cardLeft = rect.left + (rect.width / 2) - (cardRect.width / 2);
+                } else if (preference === 'top-left') {
+                     cardTop = rect.top - cardRect.height - gap;
+                     cardLeft = rect.left - cardRect.width + gap;
+                } else if (preference === 'center') {
+                     cardTop = rect.top + (rect.height / 2) - (cardRect.height / 2);
+                     cardLeft = rect.left + (rect.width / 2) - (cardRect.width / 2);
+                } else {
+                    cardTop = rect.bottom + gap;
+                    cardLeft = rect.left;
+                }
+
+                if (cardLeft < 20) cardLeft = 20;
+                if (cardTop < 20) cardTop = 20;
+                if (cardLeft + cardRect.width > viewportWidth - 20) cardLeft = viewportWidth - cardRect.width - 20;
+                if (cardTop + cardRect.height > viewportHeight - 20) cardTop = viewportHeight - cardRect.height - 20;
+            }
+
+            // WRITE PHASE
+            if (!rect) {
+                this.spotlight.style.opacity = '0';
+            } else {
+                const padding = 10;
+                this.spotlight.style.opacity = '1';
                 this.spotlight.style.top = `${rect.top - padding}px`;
                 this.spotlight.style.left = `${rect.left - padding}px`;
                 this.spotlight.style.width = `${rect.width + padding * 2}px`;
                 this.spotlight.style.height = `${rect.height + padding * 2}px`;
-
-                this.calculateCardPos(rect, step.position);
-            }
-        }
-
-        calculateCardPos(targetRect, preference) {
-            const cardRect = this.card.getBoundingClientRect();
-            const gap = 20;
-            const viewportWidth = window.innerWidth;
-            const viewportHeight = window.innerHeight;
-
-            let top, left;
-
-            if (preference === 'right') {
-                left = targetRect.right + gap;
-                top = targetRect.top;
-                if (left + cardRect.width > viewportWidth) left = targetRect.left - cardRect.width - gap;
-            } else if (preference === 'left') {
-                left = targetRect.left - cardRect.width - gap;
-                top = targetRect.top;
-            } else if (preference === 'top') {
-                top = targetRect.top - cardRect.height - gap;
-                left = targetRect.left + (targetRect.width / 2) - (cardRect.width / 2);
-            } else if (preference === 'top-left') {
-                 top = targetRect.top - cardRect.height - gap;
-                 left = targetRect.left - cardRect.width + gap;
-            } else if (preference === 'center') {
-                 top = targetRect.top + (targetRect.height / 2) - (cardRect.height / 2);
-                 left = targetRect.left + (targetRect.width / 2) - (cardRect.width / 2);
-            } else {
-                top = targetRect.bottom + gap;
-                left = targetRect.left;
             }
 
-            if (left < 20) left = 20;
-            if (top < 20) top = 20;
-            if (left + cardRect.width > viewportWidth - 20) left = viewportWidth - cardRect.width - 20;
-            if (top + cardRect.height > viewportHeight - 20) top = viewportHeight - cardRect.height - 20;
-
-            this.card.style.top = `${top}px`;
-            this.card.style.left = `${left}px`;
+            this.card.style.top = `${cardTop}px`;
+            this.card.style.left = `${cardLeft}px`;
         }
     }
 
