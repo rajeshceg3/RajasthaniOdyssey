@@ -110,7 +110,7 @@ document.addEventListener('DOMContentLoaded', () => {
     window.addEventListener('resize', updateRects, { passive: true });
 
     window.addEventListener("mousemove", (e) => {
-        const velocity = Math.sqrt(Math.pow(e.movementX, 2) + Math.pow(e.movementY, 2));
+        const velocity = Math.sqrt(e.movementX * e.movementX + e.movementY * e.movementY);
         mouseX = e.clientX;
         mouseY = e.clientY;
 
@@ -175,17 +175,24 @@ document.addEventListener('DOMContentLoaded', () => {
         const xTo = gsap.quickTo(element, "x", { duration: 1, ease: "elastic.out(1, 0.4)" });
         const yTo = gsap.quickTo(element, "y", { duration: 1, ease: "elastic.out(1, 0.4)" });
 
+        let rect = null;
+
+        element.addEventListener("mouseenter", () => {
+            rect = element.getBoundingClientRect();
+        });
+
         element.addEventListener("mousemove", (e) => {
+            if (!rect) rect = element.getBoundingClientRect();
             const { clientX, clientY } = e;
-            const { left, top, width, height } = element.getBoundingClientRect();
-            const x = clientX - (left + width / 2);
-            const y = clientY - (top + height / 2);
+            const x = clientX - (rect.left + rect.width / 2);
+            const y = clientY - (rect.top + rect.height / 2);
             xTo(x * 0.4);
             yTo(y * 0.4);
         });
         element.addEventListener("mouseleave", () => {
             xTo(0);
             yTo(0);
+            rect = null; // Clear rect so it re-calculates on next hover in case of scroll/resize
         });
     }
 
@@ -521,7 +528,7 @@ document.addEventListener('DOMContentLoaded', () => {
             window.addEventListener('resize', () => {
                 clearTimeout(resizeTimeout);
                 resizeTimeout = setTimeout(() => this.resize(), 150);
-            });
+            }, { passive: true });
                 document.addEventListener('visibilitychange', () => {
                     this.isActive = !document.hidden;
                     if (this.isActive) this.animate();
@@ -564,11 +571,13 @@ document.addEventListener('DOMContentLoaded', () => {
                 const distSq = dx * dx + dy * dy;
 
                 if (distSq < 40000) { // 200 * 200
-                    const dist = Math.sqrt(distSq);
-                    const angle = Math.atan2(dy, dx);
-                    const force = (200 - dist) / 200;
-                    p.vx -= Math.cos(angle) * force * 0.02;
-                    p.vy -= Math.sin(angle) * force * 0.02;
+                    const force = (40000 - distSq) / 40000;
+                    // Scale factor down to roughly match the original feel, which used
+                    // Math.cos(angle) * force * 0.02. We're now multiplying by dx/dy directly,
+                    // which scales with distance. Dividing by roughly 10-15 restores the original strength.
+                    const factor = force * 0.00015;
+                    p.vx -= dx * factor;
+                    p.vy -= dy * factor;
                 }
 
                 // Friction
@@ -595,9 +604,8 @@ document.addEventListener('DOMContentLoaded', () => {
                     const distSq2 = dx2 * dx2 + dy2 * dy2;
 
                     if (distSq2 < 14400) { // 120 * 120
-                        const dist2 = Math.sqrt(distSq2);
                         this.ctx.beginPath();
-                        this.ctx.strokeStyle = `rgba(255, 255, 255, ${0.15 * (1 - dist2 / 120)})`;
+                        this.ctx.strokeStyle = `rgba(255, 255, 255, ${0.15 * (1 - distSq2 / 14400)})`;
                         this.ctx.lineWidth = 0.5;
                         this.ctx.moveTo(p.x, p.y);
                         this.ctx.lineTo(p2.x, p2.y);
