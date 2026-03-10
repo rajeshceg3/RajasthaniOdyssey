@@ -77,6 +77,13 @@ document.addEventListener('DOMContentLoaded', () => {
     const dotYTo = gsap.quickTo(cursorDot, "y", { duration: 0.01 });
 
     const displacementMap = document.querySelector('#distortionFilter feDisplacementMap');
+    const distortionProxy = { scale: 0 };
+    const distortionTo = gsap.quickTo(distortionProxy, "scale", {
+        duration: 0.8,
+        ease: 'power2.out',
+        onUpdate: () => displacementMap.setAttribute('scale', distortionProxy.scale)
+    });
+    let returnTween = null;
 
     // Pre-cache DOM elements and their bounding boxes
     let winWidth = window.innerWidth;
@@ -110,7 +117,7 @@ document.addEventListener('DOMContentLoaded', () => {
     window.addEventListener('resize', updateRects, { passive: true });
 
     window.addEventListener("mousemove", (e) => {
-        const velocity = Math.sqrt(e.movementX * e.movementX + e.movementY * e.movementY);
+        const velocitySq = e.movementX * e.movementX + e.movementY * e.movementY;
         mouseX = e.clientX;
         mouseY = e.clientY;
 
@@ -120,19 +127,21 @@ document.addEventListener('DOMContentLoaded', () => {
         yTo(mouseY);
 
         // Liquid Distortion
-        const agitation = Math.min(velocity * 1.5, 60);
-        gsap.to(displacementMap, {
-            attr: { scale: agitation },
-            duration: 0.8,
-            ease: 'power2.out',
-            overwrite: 'auto'
-        });
-        gsap.to(displacementMap, {
-            attr: { scale: 0 },
+        const agitation = Math.min(velocitySq * 0.05, 60);
+
+        if (returnTween) {
+            returnTween.kill();
+        }
+
+        distortionTo(agitation);
+
+        returnTween = gsap.to(distortionProxy, {
+            scale: 0,
             duration: 1.5,
             delay: 0.1,
             ease: 'power2.out',
-            overwrite: 'auto'
+            overwrite: 'auto',
+            onUpdate: () => displacementMap.setAttribute('scale', distortionProxy.scale)
         });
 
         // Parallax & 3D Tilt
@@ -160,7 +169,7 @@ document.addEventListener('DOMContentLoaded', () => {
                  data.cardRotateYTo(rotateY);
             }
         }
-    });
+    }, { passive: true });
 
     // Hover States
     const interactiveElements = document.querySelectorAll('button, a, .landmark, .artisan-hand, .pullable-element');
