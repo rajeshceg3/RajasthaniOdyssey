@@ -554,13 +554,15 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         createParticle() {
+            const alpha = Math.random() * 0.5 + 0.2;
             return {
                 x: Math.random() * this.canvas.width,
                 y: Math.random() * this.canvas.height,
                 vx: (Math.random() - 0.5) * 0.3,
                 vy: (Math.random() - 0.5) * 0.3,
                 size: Math.random() * 2 + 1,
-                alpha: Math.random() * 0.5 + 0.2
+                alpha: alpha,
+                color: `rgba(255, 255, 255, ${alpha})`
             };
         }
 
@@ -569,6 +571,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
             this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
             const wind = (mouseX - this.halfWidth) * 0.00005;
+            const PI2 = Math.PI * 2;
+
+            this.ctx.lineWidth = 0.5;
+            this.ctx.strokeStyle = '#fff';
 
             this.particles.forEach((p, i) => {
                 p.x += p.vx + wind;
@@ -600,9 +606,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (p.y > this.canvas.height) p.y = 0;
 
                 // Draw Particle
-                this.ctx.fillStyle = `rgba(255, 255, 255, ${p.alpha})`;
+                this.ctx.globalAlpha = 1.0;
+                this.ctx.fillStyle = p.color;
                 this.ctx.beginPath();
-                this.ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+                this.ctx.arc(p.x, p.y, p.size, 0, PI2);
                 this.ctx.fill();
 
                 // Draw Connections
@@ -613,15 +620,15 @@ document.addEventListener('DOMContentLoaded', () => {
                     const distSq2 = dx2 * dx2 + dy2 * dy2;
 
                     if (distSq2 < 14400) { // 120 * 120
+                        this.ctx.globalAlpha = 0.15 * (1 - distSq2 / 14400);
                         this.ctx.beginPath();
-                        this.ctx.strokeStyle = `rgba(255, 255, 255, ${0.15 * (1 - distSq2 / 14400)})`;
-                        this.ctx.lineWidth = 0.5;
                         this.ctx.moveTo(p.x, p.y);
                         this.ctx.lineTo(p2.x, p2.y);
                         this.ctx.stroke();
                     }
                 }
             });
+            this.ctx.globalAlpha = 1.0;
             requestAnimationFrame(() => this.animate());
         }
     }
