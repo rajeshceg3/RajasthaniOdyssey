@@ -120,6 +120,9 @@ document.addEventListener('DOMContentLoaded', () => {
             });
 
             // Handle Resize & Scroll
+            this.viewportWidth = window.innerWidth;
+            this.viewportHeight = window.innerHeight;
+
             let ticking = false;
             const updateHandler = () => {
                 if (this.isActive) {
@@ -133,7 +136,12 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             };
 
-            window.addEventListener('resize', updateHandler, { passive: true });
+            window.addEventListener('resize', () => {
+                this.viewportWidth = window.innerWidth;
+                this.viewportHeight = window.innerHeight;
+                updateHandler();
+            }, { passive: true });
+
             window.addEventListener('scroll', updateHandler, { capture: true, passive: true });
         }
 
@@ -179,6 +187,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         updateState(index) {
             this.updateContent(index);
+            this.cardRect = this.card.getBoundingClientRect();
             this.updatePosition(index);
         }
 
@@ -204,9 +213,9 @@ document.addEventListener('DOMContentLoaded', () => {
             }
 
             // READ PHASE
-            const viewportWidth = window.innerWidth;
-            const viewportHeight = window.innerHeight;
-            const cardRect = this.card.getBoundingClientRect();
+            const viewportWidth = this.viewportWidth;
+            const viewportHeight = this.viewportHeight;
+            const cardRect = this.cardRect;
             let rect = null;
 
             if (targetEl) {
