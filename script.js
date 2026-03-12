@@ -188,7 +188,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         element.addEventListener("mouseenter", () => {
             rect = element.getBoundingClientRect();
-        });
+        }, { passive: true });
 
         element.addEventListener("mousemove", (e) => {
             if (!rect) rect = element.getBoundingClientRect();
@@ -197,12 +197,12 @@ document.addEventListener('DOMContentLoaded', () => {
             const y = clientY - (rect.top + rect.height / 2);
             xTo(x * 0.4);
             yTo(y * 0.4);
-        });
+        }, { passive: true });
         element.addEventListener("mouseleave", () => {
             xTo(0);
             yTo(0);
             rect = null; // Clear rect so it re-calculates on next hover in case of scroll/resize
-        });
+        }, { passive: true });
     }
 
     magneticEffect(document.querySelector('.artisan-hand'));
@@ -312,6 +312,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function openDetailView(title, description, emoji, triggerElement) {
         lastFocusedElement = triggerElement;
+
+        // DOM Read Phase: Calculate positions before any writes
+        let rect = null;
+        if (triggerElement) {
+            rect = triggerElement.getBoundingClientRect();
+        }
+
+        // DOM Write Phase: Update content and classes
         detailEmoji.textContent = emoji;
         detailTitle.textContent = title;
         detailDescription.textContent = description;
@@ -321,8 +329,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const content = detailView.querySelector('.detail-content');
 
         // Simple FLIP-like scaling from center for now, or from trigger if present
-        if (triggerElement) {
-            const rect = triggerElement.getBoundingClientRect();
+        if (rect) {
             // We could do a complex FLIP here, but a clean scale in is often smoother/less buggy
             // Let's stick to a premium scale-in with a slight rotation
             gsap.fromTo(content,
@@ -561,8 +568,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 vx: (Math.random() - 0.5) * 0.3,
                 vy: (Math.random() - 0.5) * 0.3,
                 size: Math.random() * 2 + 1,
-                alpha: alpha,
-                color: `rgba(255, 255, 255, ${alpha})`
+                alpha: alpha
             };
         }
 
@@ -575,6 +581,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
             this.ctx.lineWidth = 0.5;
             this.ctx.strokeStyle = '#fff';
+            this.ctx.fillStyle = '#fff';
 
             this.particles.forEach((p, i) => {
                 p.x += p.vx + wind;
@@ -606,8 +613,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (p.y > this.canvas.height) p.y = 0;
 
                 // Draw Particle
-                this.ctx.globalAlpha = 1.0;
-                this.ctx.fillStyle = p.color;
+                this.ctx.globalAlpha = p.alpha;
                 this.ctx.beginPath();
                 this.ctx.arc(p.x, p.y, p.size, 0, PI2);
                 this.ctx.fill();
