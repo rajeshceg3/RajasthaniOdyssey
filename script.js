@@ -114,7 +114,11 @@ document.addEventListener('DOMContentLoaded', () => {
     // Initialize rects on load
     updateRects();
 
-    window.addEventListener('resize', updateRects, { passive: true });
+    let resizeTimeoutRects;
+    window.addEventListener('resize', () => {
+        clearTimeout(resizeTimeoutRects);
+        resizeTimeoutRects = setTimeout(updateRects, 150);
+    }, { passive: true });
 
     window.addEventListener("mousemove", (e) => {
         const velocitySq = e.movementX * e.movementX + e.movementY * e.movementY;
@@ -178,30 +182,37 @@ document.addEventListener('DOMContentLoaded', () => {
         el.addEventListener('mouseleave', () => cursorOutline.classList.remove('hover'));
     });
 
-    // Magnetic Effect
+    // Magnetic Effect - Centralized resize manager
+    const magneticClearFns = [];
+    let magneticResizeTimeout;
+    window.addEventListener('resize', () => {
+        clearTimeout(magneticResizeTimeout);
+        magneticResizeTimeout = setTimeout(() => {
+            magneticClearFns.forEach(fn => fn());
+        }, 150);
+    }, { passive: true });
+
     function magneticEffect(element) {
         if (!element) return;
         const xTo = gsap.quickTo(element, "x", { duration: 1, ease: "elastic.out(1, 0.4)" });
         const yTo = gsap.quickTo(element, "y", { duration: 1, ease: "elastic.out(1, 0.4)" });
 
         let rect = null;
-
-        element.addEventListener("mouseenter", () => {
-            rect = element.getBoundingClientRect();
-        }, { passive: true });
+        magneticClearFns.push(() => { rect = null; });
 
         element.addEventListener("mousemove", (e) => {
-            if (!rect) rect = element.getBoundingClientRect();
+            if (!rect) rect = element.getBoundingClientRect(); // Lazy initialization avoids layout thrashing
             const { clientX, clientY } = e;
             const x = clientX - (rect.left + rect.width / 2);
             const y = clientY - (rect.top + rect.height / 2);
             xTo(x * 0.4);
             yTo(y * 0.4);
         }, { passive: true });
+
         element.addEventListener("mouseleave", () => {
             xTo(0);
             yTo(0);
-            rect = null; // Clear rect so it re-calculates on next hover in case of scroll/resize
+            rect = null; // Clear rect so it re-calculates on next hover
         }, { passive: true });
     }
 
@@ -538,6 +549,7 @@ document.addEventListener('DOMContentLoaded', () => {
             this.particles = [];
             this.numParticles = 60; // Fewer but smarter particles
                 this.isActive = true;
+            this.PI2 = Math.PI * 2;
             this.resize();
 
             let resizeTimeout;
@@ -558,6 +570,11 @@ document.addEventListener('DOMContentLoaded', () => {
             this.canvas.width = window.innerWidth;
             this.canvas.height = window.innerHeight;
             this.halfWidth = this.canvas.width / 2;
+
+            // Set canvas styles here to avoid setting them on every frame
+            this.ctx.lineWidth = 0.5;
+            this.ctx.strokeStyle = '#fff';
+            this.ctx.fillStyle = '#fff';
         }
 
         createParticle() {
@@ -577,11 +594,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
             this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
             const wind = (mouseX - this.halfWidth) * 0.00005;
-            const PI2 = Math.PI * 2;
-
-            this.ctx.lineWidth = 0.5;
-            this.ctx.strokeStyle = '#fff';
-            this.ctx.fillStyle = '#fff';
 
             this.particles.forEach((p, i) => {
                 p.x += p.vx + wind;
@@ -615,7 +627,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 // Draw Particle
                 this.ctx.globalAlpha = p.alpha;
                 this.ctx.beginPath();
-                this.ctx.arc(p.x, p.y, p.size, 0, PI2);
+                this.ctx.arc(p.x, p.y, p.size, 0, this.PI2);
                 this.ctx.fill();
 
                 // Draw Connections
