@@ -124,13 +124,16 @@ document.addEventListener('DOMContentLoaded', () => {
             this.viewportHeight = window.innerHeight;
 
             let ticking = false;
+
+            this.boundUpdatePosition = () => {
+                this.updatePosition(this.currentStep);
+                ticking = false;
+            };
+
             const updateHandler = () => {
                 if (this.isActive) {
                     if (!ticking) {
-                        window.requestAnimationFrame(() => {
-                            this.updatePosition(this.currentStep);
-                            ticking = false;
-                        });
+                        window.requestAnimationFrame(this.boundUpdatePosition);
                         ticking = true;
                     }
                 }
@@ -227,8 +230,8 @@ document.addEventListener('DOMContentLoaded', () => {
             const gap = 20;
 
             if (!rect) {
-                cardTop = viewportHeight / 2 - cardRect.height / 2;
-                cardLeft = viewportWidth / 2 - cardRect.width / 2;
+                cardTop = viewportHeight * 0.5 - cardRect.height * 0.5;
+                cardLeft = viewportWidth * 0.5 - cardRect.width * 0.5;
             } else {
                 const preference = step.position;
 
@@ -241,13 +244,13 @@ document.addEventListener('DOMContentLoaded', () => {
                     cardTop = rect.top;
                 } else if (preference === 'top') {
                     cardTop = rect.top - cardRect.height - gap;
-                    cardLeft = rect.left + (rect.width / 2) - (cardRect.width / 2);
+                    cardLeft = rect.left + (rect.width * 0.5) - (cardRect.width * 0.5);
                 } else if (preference === 'top-left') {
                      cardTop = rect.top - cardRect.height - gap;
                      cardLeft = rect.left - cardRect.width + gap;
                 } else if (preference === 'center') {
-                     cardTop = rect.top + (rect.height / 2) - (cardRect.height / 2);
-                     cardLeft = rect.left + (rect.width / 2) - (cardRect.width / 2);
+                     cardTop = rect.top + (rect.height * 0.5) - (cardRect.height * 0.5);
+                     cardLeft = rect.left + (rect.width * 0.5) - (cardRect.width * 0.5);
                 } else {
                     cardTop = rect.bottom + gap;
                     cardLeft = rect.left;

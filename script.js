@@ -550,6 +550,7 @@ document.addEventListener('DOMContentLoaded', () => {
             this.numParticles = 60; // Fewer but smarter particles
                 this.isActive = true;
             this.PI2 = Math.PI * 2;
+            this.boundAnimate = this.animate.bind(this);
             this.resize();
 
             let resizeTimeout;
@@ -559,17 +560,17 @@ document.addEventListener('DOMContentLoaded', () => {
             }, { passive: true });
                 document.addEventListener('visibilitychange', () => {
                     this.isActive = !document.hidden;
-                    if (this.isActive) this.animate();
+                    if (this.isActive) this.boundAnimate();
                 });
 
             for(let i = 0; i < this.numParticles; i++) this.particles.push(this.createParticle());
-            this.animate();
+            this.boundAnimate();
         }
 
         resize() {
-            this.canvas.width = window.innerWidth;
-            this.canvas.height = window.innerHeight;
-            this.halfWidth = this.canvas.width / 2;
+            this.width = this.canvas.width = window.innerWidth;
+            this.height = this.canvas.height = window.innerHeight;
+            this.halfWidth = this.width * 0.5;
 
             // Set canvas styles here to avoid setting them on every frame
             this.ctx.lineWidth = 0.5;
@@ -580,8 +581,8 @@ document.addEventListener('DOMContentLoaded', () => {
         createParticle() {
             const alpha = Math.random() * 0.5 + 0.2;
             return {
-                x: Math.random() * this.canvas.width,
-                y: Math.random() * this.canvas.height,
+                x: Math.random() * this.width,
+                y: Math.random() * this.height,
                 vx: (Math.random() - 0.5) * 0.3,
                 vy: (Math.random() - 0.5) * 0.3,
                 size: Math.random() * 2 + 1,
@@ -592,20 +593,23 @@ document.addEventListener('DOMContentLoaded', () => {
         animate() {
                 if (!this.isActive) return;
 
-            this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
-            const wind = (mouseX - this.halfWidth) * 0.00005;
+            this.ctx.clearRect(0, 0, this.width, this.height);
+            const mX = mouseX;
+            const mY = mouseY;
+            const wind = (mX - this.halfWidth) * 0.00005;
 
-            this.particles.forEach((p, i) => {
+            for (let i = 0; i < this.particles.length; i++) {
+                const p = this.particles[i];
                 p.x += p.vx + wind;
                 p.y += p.vy;
 
                 // Mouse Interaction (Repulsion)
-                const dx = mouseX - p.x;
-                const dy = mouseY - p.y;
+                const dx = mX - p.x;
+                const dy = mY - p.y;
                 const distSq = dx * dx + dy * dy;
 
                 if (distSq < 40000) { // 200 * 200
-                    const force = (40000 - distSq) / 40000;
+                    const force = (40000 - distSq) * 0.000025; // / 40000
                     // Scale factor down to roughly match the original feel, which used
                     // Math.cos(angle) * force * 0.02. We're now multiplying by dx/dy directly,
                     // which scales with distance. Dividing by roughly 10-15 restores the original strength.
@@ -619,10 +623,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 p.vy *= 0.99;
 
                 // Boundaries
-                if (p.x < 0) p.x = this.canvas.width;
-                if (p.x > this.canvas.width) p.x = 0;
-                if (p.y < 0) p.y = this.canvas.height;
-                if (p.y > this.canvas.height) p.y = 0;
+                if (p.x < 0) p.x = this.width;
+                if (p.x > this.width) p.x = 0;
+                if (p.y < 0) p.y = this.height;
+                if (p.y > this.height) p.y = 0;
 
                 // Draw Particle
                 this.ctx.globalAlpha = p.alpha;
@@ -638,16 +642,16 @@ document.addEventListener('DOMContentLoaded', () => {
                     const distSq2 = dx2 * dx2 + dy2 * dy2;
 
                     if (distSq2 < 14400) { // 120 * 120
-                        this.ctx.globalAlpha = 0.15 * (1 - distSq2 / 14400);
+                        this.ctx.globalAlpha = 0.15 * (1 - distSq2 * 0.00006944); // / 14400
                         this.ctx.beginPath();
                         this.ctx.moveTo(p.x, p.y);
                         this.ctx.lineTo(p2.x, p2.y);
                         this.ctx.stroke();
                     }
                 }
-            });
+            }
             this.ctx.globalAlpha = 1.0;
-            requestAnimationFrame(() => this.animate());
+            requestAnimationFrame(this.boundAnimate);
         }
     }
     new DustSystem();
