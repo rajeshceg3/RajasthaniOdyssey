@@ -291,22 +291,42 @@ document.addEventListener('DOMContentLoaded', () => {
     }, { passive: true });
 
     window.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && detailView.classList.contains('visible')) {
+            closeDetailView();
+            return;
+        }
         if (isScrolling) return;
+        if (detailView.classList.contains('visible')) return; // overlay owns input
         if (e.key === 'ArrowRight' && currentChapter < numChapters - 1) goToChapter(currentChapter + 1);
         else if (e.key === 'ArrowLeft' && currentChapter > 0) goToChapter(currentChapter - 1);
     });
 
     // Touch Navigation
     let touchStartX = 0;
+    let touchStartY = 0;
     let touchEndX = 0;
+    let touchOwned = false;
+
+    // Input ownership: touches beginning on interactive controls or inside the
+    // detail overlay belong to those surfaces, not to chapter navigation.
+    const NAV_SWIPE_EXCLUDE = 'button, a, input, textarea, select, [role="button"], .detail-view';
 
     window.addEventListener('touchstart', (e) => {
         touchStartX = e.changedTouches[0].screenX;
+        touchStartY = e.changedTouches[0].screenY;
+        touchOwned = !!(e.target && e.target.closest && e.target.closest(NAV_SWIPE_EXCLUDE))
+            || detailView.classList.contains('visible');
     }, { passive: true });
 
     window.addEventListener('touchend', (e) => {
         touchEndX = e.changedTouches[0].screenX;
-        handleSwipe();
+        if (!touchOwned) {
+            const deltaY = Math.abs(e.changedTouches[0].screenY - touchStartY);
+            const deltaX = Math.abs(touchEndX - touchStartX);
+            // Horizontal-dominant swipes only: vertical scrolls never navigate
+            if (deltaX >= 50 && deltaY <= 40 && deltaX > deltaY) handleSwipe();
+        }
+        touchOwned = false;
     }, { passive: true });
 
     function handleSwipe() {
