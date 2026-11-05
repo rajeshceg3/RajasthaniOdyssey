@@ -7,6 +7,14 @@ document.addEventListener('DOMContentLoaded', () => {
     const maruCanvas = document.getElementById('maru-canvas');
     const container = document.getElementById('chapters-container');
     const chapters = gsap.utils.toArray('.chapter');
+
+    // Respect prefers-reduced-motion: CSS transitions are already neutralized
+    // by the stylesheet; GSAP is JS-driven, so collapse its timeline and skip
+    // the ambient particle system.
+    const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (prefersReducedMotion) {
+        gsap.globalTimeline.timeScale(100);
+    }
     const detailView = document.getElementById('detail-view');
     const detailEmoji = document.getElementById('detail-emoji');
     const detailTitle = document.getElementById('detail-title');
@@ -256,7 +264,7 @@ document.addEventListener('DOMContentLoaded', () => {
             );
             gsap.fromTo(descWords,
                 { y: 20, opacity: 0 },
-                { y: 0, opacity: 0.8, duration: 1, stagger: 0.02, delay: 0.5, ease: 'power2.out' }
+                { y: 0, opacity: 0.85, duration: 1, stagger: 0.02, delay: 0.5, ease: 'power2.out' }
             );
         }
     }
@@ -524,7 +532,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 gsap.to(descWords, {
                     y: 0,
-                    opacity: 0.8,
+                    opacity: 0.85,
                     duration: 1,
                     stagger: 0.01,
                     delay: 0.3,
@@ -654,5 +662,7 @@ document.addEventListener('DOMContentLoaded', () => {
             requestAnimationFrame(this.boundAnimate);
         }
     }
-    new DustSystem();
+    if (!prefersReducedMotion) {
+        new DustSystem();
+    }
 });

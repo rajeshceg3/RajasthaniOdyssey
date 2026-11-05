@@ -163,7 +163,7 @@ html, body {
 
 .chapters-container {
     display: flex;
-    width: 500%; /* 100% for each of the 5 chapters */
+    width: 600%; /* 100% for each of the 6 chapters */
     height: 100%;
     position: absolute;
     top: 0;
@@ -172,6 +172,7 @@ html, body {
 
 .chapter {
     width: 100vw;
+    flex-shrink: 0;
     height: 100vh;
     position: relative;
     display: flex;
@@ -191,7 +192,7 @@ html, body {
 .chapter-title {
     font-family: 'Playfair Display', serif;
     font-style: italic;
-    font-size: 5rem;
+    font-size: clamp(3.5rem, 5vw, 4.5rem);
     font-weight: 300;
     line-height: 1.1;
     margin-bottom: 2rem;
@@ -201,7 +202,7 @@ html, body {
 }
 
 .glass-card {
-    background: rgba(255, 255, 255, 0.65);
+    background: rgba(255, 255, 255, 0.72);
     backdrop-filter: blur(30px) saturate(180%);
     -webkit-backdrop-filter: blur(30px) saturate(180%);
     border: 1px solid rgba(255, 255, 255, 0.7);
@@ -263,6 +264,11 @@ html, body {
 .chapter.active .chapter-title {
     transform: translateY(0);
     opacity: 1;
+}
+
+/* Split words must stay whole: char spans may wrap inside a word span otherwise */
+.chapter-title .word {
+    white-space: nowrap;
 }
 
 /* Split Text Animation Classes */
@@ -709,4 +715,24 @@ button.landmark, button.close-btn {
         bottom: 20px;
         width: 60px;
     }
+}
+
+/* In-app attribution: licenses and sources for all imagery, audio and video */
+#credits-link {
+    position: fixed;
+    bottom: 24px;
+    left: 24px;
+    z-index: 100;
+    font-size: 0.8rem;
+    color: var(--charcoal-text);
+    opacity: 0.55;
+    text-decoration: none;
+    letter-spacing: 0.04em;
+    transition: opacity 0.4s ease;
+}
+
+#credits-link:hover,
+#credits-link:focus-visible {
+    opacity: 1;
+    text-decoration: underline;
 }
