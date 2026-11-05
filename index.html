@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://cdn.jsdelivr.net/npm/gsap@3.12.2/; style-src 'self' https://fonts.googleapis.com 'unsafe-inline'; font-src https://fonts.gstatic.com; img-src 'self' https://images.unsplash.com data:; media-src https://assets.codepen.io; connect-src https://fonts.googleapis.com https://fonts.gstatic.com;">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://cdn.jsdelivr.net/npm/gsap@3.12.2/; style-src 'self' https://fonts.googleapis.com 'unsafe-inline'; font-src https://fonts.gstatic.com; img-src 'self' data:; media-src 'self'; connect-src https://fonts.googleapis.com https://fonts.gstatic.com;">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Maru</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -44,14 +44,14 @@
     <!-- The Unveiling: A moment of quiet anticipation. -->
     <div class="unveiling" id="unveiling">
         <h1 class="word">मरु</h1>
-        <audio id="sarangi-note" src="https://assets.codepen.io/134442/sarangi.mp3" preload="auto"></audio>
+        <audio id="sarangi-note" src="assets/audio/sarangi.ogg" preload="auto"></audio>
     </div>
 
     <!-- The Main Canvas -->
     <main id="maru-canvas">
         <div class="chapters-container" id="chapters-container">
             <!-- Chapter 1: Jaipur -->
-            <section class="chapter" id="chapter-jaipur" data-accent-color="#F4CAC3" data-ambient-sound-src="https://assets.codepen.io/134442/jaipur.mp3">
+            <section class="chapter" id="chapter-jaipur" data-accent-color="#F4CAC3" data-ambient-sound-src="assets/audio/jaipur.ogg">
                 <div id="bg-jaipur" class="bg-image" role="img" aria-label="A panoramic view of Jaipur, the Pink City"></div>
                 <div class="chapter-content glass-card">
                     <h1 class="chapter-title">Jaipur<br>The Rose</h1>
@@ -63,7 +63,7 @@
             </section>
 
             <!-- Chapter 2: Jodhpur -->
-            <section class="chapter" id="chapter-jodhpur" data-accent-color="#B0D0E8" data-ambient-sound-src="https://assets.codepen.io/134442/jodhpur.mp3">
+            <section class="chapter" id="chapter-jodhpur" data-accent-color="#B0D0E8" data-ambient-sound-src="assets/audio/jodhpur.ogg">
                 <div id="bg-jodhpur" class="bg-image" role="img" aria-label="The blue cityscape of Jodhpur under the sun"></div>
                 <div class="chapter-content glass-card">
                     <h1 class="chapter-title">Jodhpur<br>The Indigo</h1>
@@ -75,7 +75,7 @@
             </section>
 
             <!-- Chapter 3: Jaisalmer -->
-            <section class="chapter" id="chapter-jaisalmer" data-accent-color="#FAE3C6" data-ambient-sound-src="https://assets.codepen.io/134442/jaisalmer.mp3">
+            <section class="chapter" id="chapter-jaisalmer" data-accent-color="#FAE3C6" data-ambient-sound-src="assets/audio/jaisalmer.ogg">
                 <div id="bg-jaisalmer" class="bg-image" role="img" aria-label="The golden sands and fort of Jaisalmer"></div>
                 <div class="chapter-content glass-card">
                     <h1 class="chapter-title">Jaisalmer<br>The Golden</h1>
@@ -87,7 +87,7 @@
             </section>
 
             <!-- Chapter 4: Udaipur -->
-            <section class="chapter" id="chapter-udaipur" data-accent-color="#C1E8E5" data-ambient-sound-src="https://assets.codepen.io/134442/udaipur.mp3">
+            <section class="chapter" id="chapter-udaipur" data-accent-color="#C1E8E5" data-ambient-sound-src="assets/audio/udaipur.ogg">
                 <div id="bg-udaipur" class="bg-image" role="img" aria-label="The serene Lake Pichola and City Palace in Udaipur"></div>
                 <div class="chapter-content glass-card">
                     <h1 class="chapter-title">Udaipur<br>The White</h1>
@@ -99,7 +99,7 @@
             </section>
             
             <!-- Chapter 5: The Thar -->
-            <section class="chapter" id="chapter-thar" data-accent-color="#E8DCCA" data-ambient-sound-src="https://assets.codepen.io/134442/thar.mp3">
+            <section class="chapter" id="chapter-thar" data-accent-color="#E8DCCA" data-ambient-sound-src="assets/audio/thar.ogg">
                 <div id="bg-thar" class="bg-image" role="img" aria-label="The vast, shifting dunes of the Thar Desert"></div>
                 <div class="chapter-content glass-card">
                     <h1 class="chapter-title">The Thar<br>The Silence</h1>
@@ -111,7 +111,7 @@
             </section>
 
             <!-- Chapter 6: Pushkar -->
-            <section class="chapter" id="chapter-pushkar" data-accent-color="#E0C3FC" data-ambient-sound-src="https://assets.codepen.io/134442/pushkar.mp3">
+            <section class="chapter" id="chapter-pushkar" data-accent-color="#E0C3FC" data-ambient-sound-src="assets/audio/pushkar.ogg">
                 <div id="bg-pushkar" class="bg-image" role="img" aria-label="The sacred Pushkar Lake and temples"></div>
                 <div class="chapter-content glass-card">
                     <h1 class="chapter-title">Pushkar<br>The Divine</h1>
@@ -129,7 +129,7 @@
         </button>
 
         <button class="artisan-hand" title="The Artisan's Hand" aria-label="View artisan video">
-             <video src="https://assets.codepen.io/134442/potter.mp4" autoplay loop muted playsinline></video>
+             <video src="assets/video/potter.mp4" autoplay loop muted playsinline></video>
         </button>
 
         <button id="sound-toggle" title="Listen" aria-label="Enable sound" aria-pressed="false">
