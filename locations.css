@@ -177,6 +177,11 @@ html, body {
     display: flex;
     align-items: center;
     padding: 0 8vw;
+    /* Each chapter is its own stacking context so the z-index:-1
+       background image paints above the page background even before
+       GSAP applies any transform (previously the first chapter's
+       scenery stayed hidden behind the opaque body background). */
+    isolation: isolate;
 }
 
 .chapter-content {
