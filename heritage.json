@@ -1,0 +1,116 @@
+[
+  {
+    "id": "jaipur",
+    "name": "Jaipur The Rose",
+    "poem": "Rose sandstone, small windows and a street full of detail. Let your eye move from one projecting balcony to the next.",
+    "landmarks": [
+      {
+        "name": "Hawa Mahal",
+        "description": "A five-storey pink sandstone palace with projecting latticed windows. Its street-facing facade is a defining Jaipur landmark."
+      },
+      {
+        "name": "Amber Fort",
+        "description": "A hilltop palace-fort near Jaipur, known for courtyards and a mix of sandstone and marble."
+      },
+      {
+        "name": "City Palace",
+        "description": "A palace complex in Jaipur with courtyards, museums and buildings added over time."
+      }
+    ]
+  },
+  {
+    "id": "jodhpur",
+    "name": "Jodhpur The Indigo",
+    "poem": "Blue houses gather below the ridge. The fort and the city hold two different scales in the same view.",
+    "landmarks": [
+      {
+        "name": "Mehrangarh Fort",
+        "description": "A large fort on a rocky ridge above Jodhpur. Its walls and palace buildings rise over the old city."
+      },
+      {
+        "name": "Jaswant Thada",
+        "description": "A white marble memorial associated with Maharaja Jaswant Singh II."
+      },
+      {
+        "name": "Umaid Bhawan Palace",
+        "description": "A palace in Jodhpur with a royal residence, museum and hotel."
+      }
+    ]
+  },
+  {
+    "id": "jaisalmer",
+    "name": "Jaisalmer The Golden",
+    "poem": "Golden stone catches the light. Inside the walls, the fort remains part of a living city.",
+    "landmarks": [
+      {
+        "name": "The Living Fort",
+        "description": "Jaisalmer Fort is a living settlement, with homes, shops and temples within its sandstone walls."
+      },
+      {
+        "name": "Patwon Ki Haveli",
+        "description": "A group of five havelis in Jaisalmer, known for carved sandstone facades."
+      },
+      {
+        "name": "Sam Sand Dunes",
+        "description": "A dune landscape near Jaisalmer. Check local conditions and responsible operators before any visit."
+      }
+    ]
+  },
+  {
+    "id": "udaipur",
+    "name": "Udaipur The White",
+    "poem": "Light moves across the lake while the palace keeps its long line along the shore.",
+    "landmarks": [
+      {
+        "name": "Lake Pichola",
+        "description": "Lake Pichola has the islands of Jagniwas and Jagmandir, with the City Palace along its eastern bank."
+      },
+      {
+        "name": "City Palace of Udaipur",
+        "description": "A palace complex overlooking Lake Pichola, with balconies, towers and cupolas."
+      },
+      {
+        "name": "Jag Mandir",
+        "description": "A palace on an island in Lake Pichola, distinct from the Lake Palace on Jagniwas."
+      }
+    ]
+  },
+  {
+    "id": "thar",
+    "name": "The Thar The Silence",
+    "poem": "Sand holds the marks of wind and passing feet. Look closer for scrub, stone and the signs of life.",
+    "landmarks": [
+      {
+        "name": "The Dunes",
+        "description": "Dunes are one part of the Thar landscape, alongside rocky ground and desert vegetation."
+      },
+      {
+        "name": "Desert National Park",
+        "description": "A protected landscape near Jaisalmer with dunes, rocks and important desert wildlife habitat. A sighting is never guaranteed."
+      },
+      {
+        "name": "Khuri Village",
+        "description": "A village near Jaisalmer associated with nearby desert dunes. This illustration is not a village reconstruction."
+      }
+    ]
+  },
+  {
+    "id": "pushkar",
+    "name": "Pushkar The Divine",
+    "poem": "Steps meet water at the ghats. Give the lake and the people who worship here room to be themselves.",
+    "landmarks": [
+      {
+        "name": "Pushkar Lake",
+        "description": "A sacred lake ringed by bathing ghats. Respect worship, local customs and any site rules."
+      },
+      {
+        "name": "Brahma Temple",
+        "description": "A temple in Pushkar dedicated to Brahma, recognised by its red spire."
+      },
+      {
+        "name": "Savitri Temple",
+        "description": "A hilltop temple overlooking Pushkar. Check local access and conditions before a visit."
+      }
+    ]
+  }
+]

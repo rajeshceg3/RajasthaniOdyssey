@@ -1,0 +1,668 @@
+document.addEventListener('DOMContentLoaded', () => {
+    // Jony Ive: The Digital Craftsman - Elevated
+
+    // --- SECTION 1: ELEMENT REFERENCES ---
+    const unveiling = document.getElementById('unveiling');
+    const sarangiNote = document.getElementById('sarangi-note');
+    const maruCanvas = document.getElementById('maru-canvas');
+    const container = document.getElementById('chapters-container');
+    const chapters = gsap.utils.toArray('.chapter');
+
+    // Respect prefers-reduced-motion: CSS transitions are already neutralized
+    // by the stylesheet; GSAP is JS-driven, so collapse its timeline and skip
+    // the ambient particle system.
+    const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (prefersReducedMotion) {
+        gsap.globalTimeline.timeScale(100);
+    }
+    const detailView = document.getElementById('detail-view');
+    const detailEmoji = document.getElementById('detail-emoji');
+    const detailTitle = document.getElementById('detail-title');
+    const detailDescription = document.getElementById('detail-description');
+    const closeDetailBtn = document.getElementById('close-detail-btn');
+    const landmarks = document.querySelectorAll('.landmark');
+    const cursorDot = document.querySelector('.cursor-dot');
+    const cursorOutline = document.querySelector('.cursor-outline');
+
+    const numChapters = chapters.length;
+    container.style.width = `${numChapters * 100}%`;
+    let currentChapter = 0;
+    let isScrolling = false;
+
+    // --- SECTION 1.2: TEXT SPLITTING UTILITY ---
+    function splitText(element, type = 'words') {
+        if (!element) return;
+        const text = element.innerText;
+        element.setAttribute('aria-label', text);
+        const words = text.split(' ');
+
+        element.innerHTML = words.map(word => {
+            if(word.includes('\n')) {
+                const parts = word.split('\n');
+                 return parts.map((part, i) => {
+                    const content = type === 'chars'
+                        ? part.split('').map(char => `<span class="char" style="display:inline-block;" aria-hidden="true">${char}</span>`).join('')
+                        : part;
+                    return `<span class="word" style="display:inline-block;" aria-hidden="true">${content}</span>${i < parts.length - 1 ? '<br>' : ''}`;
+                }).join('');
+            }
+            const content = type === 'chars'
+                ? word.split('').map(char => `<span class="char" style="display:inline-block;" aria-hidden="true">${char}</span>`).join('')
+                : word;
+            return `<span class="word" style="display:inline-block;" aria-hidden="true">${content}</span>`;
+        }).join(' ');
+
+        return type === 'chars' ? element.querySelectorAll('.char') : element.querySelectorAll('.word');
+    }
+
+    chapters.forEach(chapter => {
+        splitText(chapter.querySelector('.chapter-title'), 'chars');
+        splitText(chapter.querySelector('.chapter-description'), 'words');
+    });
+
+    // Global Focus Management
+    document.addEventListener('focusin', (e) => {
+        const target = e.target;
+        const chapter = target.closest('.chapter');
+        if (chapter) {
+            const index = chapters.indexOf(chapter);
+            if (index !== -1 && index !== currentChapter) {
+                goToChapter(index);
+            }
+        }
+    });
+
+    // --- SECTION 1.5: CURSOR & INTERACTION LOGIC ---
+    let mouseX = 0;
+    let mouseY = 0;
+
+    gsap.set(cursorDot, { xPercent: -50, yPercent: -50 });
+    gsap.set(cursorOutline, { xPercent: -50, yPercent: -50 });
+
+    const xTo = gsap.quickTo(cursorOutline, "x", { duration: 0.2, ease: "power3" });
+    const yTo = gsap.quickTo(cursorOutline, "y", { duration: 0.2, ease: "power3" });
+    const dotXTo = gsap.quickTo(cursorDot, "x", { duration: 0.01 });
+    const dotYTo = gsap.quickTo(cursorDot, "y", { duration: 0.01 });
+
+    const displacementMap = document.querySelector('#distortionFilter feDisplacementMap');
+    const distortionProxy = { scale: 0 };
+    const distortionTo = gsap.quickTo(distortionProxy, "scale", {
+        duration: 0.8,
+        ease: 'power2.out',
+        onUpdate: () => displacementMap.setAttribute('scale', distortionProxy.scale)
+    });
+    let returnTween = null;
+
+    // Pre-cache DOM elements and their bounding boxes
+    let winWidth = window.innerWidth;
+    let winHeight = window.innerHeight;
+
+    const chapterData = chapters.map(chapter => ({
+        element: chapter,
+        glassCard: chapter.querySelector('.glass-card'),
+        bg: chapter.querySelector('.bg-image'),
+        bgXTo: chapter.querySelector('.bg-image') ? gsap.quickTo(chapter.querySelector('.bg-image'), "x", { duration: 1, ease: "power2.out" }) : null,
+        bgYTo: chapter.querySelector('.bg-image') ? gsap.quickTo(chapter.querySelector('.bg-image'), "y", { duration: 1, ease: "power2.out" }) : null,
+        cardRotateXTo: chapter.querySelector('.glass-card') ? gsap.quickTo(chapter.querySelector('.glass-card'), "rotateX", { duration: 1, ease: "power2.out", transformPerspective: 1000 }) : null,
+        cardRotateYTo: chapter.querySelector('.glass-card') ? gsap.quickTo(chapter.querySelector('.glass-card'), "rotateY", { duration: 1, ease: "power2.out", transformPerspective: 1000 }) : null,
+        cardRect: { cardX: 0, cardY: 0 }
+    }));
+
+    function updateRects() {
+        winWidth = window.innerWidth;
+        winHeight = window.innerHeight;
+        const currentData = chapterData[currentChapter];
+        if (currentData && currentData.glassCard) {
+            const rect = currentData.glassCard.getBoundingClientRect();
+            currentData.cardRect.cardX = rect.left + rect.width / 2;
+            currentData.cardRect.cardY = rect.top + rect.height / 2;
+        }
+    }
+
+    // Initialize rects on load
+    updateRects();
+
+    let resizeTimeoutRects;
+    window.addEventListener('resize', () => {
+        clearTimeout(resizeTimeoutRects);
+        resizeTimeoutRects = setTimeout(updateRects, 150);
+    }, { passive: true });
+
+    window.addEventListener("mousemove", (e) => {
+        const velocitySq = e.movementX * e.movementX + e.movementY * e.movementY;
+        mouseX = e.clientX;
+        mouseY = e.clientY;
+
+        dotXTo(mouseX);
+        dotYTo(mouseY);
+        xTo(mouseX);
+        yTo(mouseY);
+
+        // Liquid Distortion
+        const agitation = Math.min(velocitySq * 0.05, 60);
+
+        if (returnTween) {
+            returnTween.kill();
+        }
+
+        distortionTo(agitation);
+
+        returnTween = gsap.to(distortionProxy, {
+            scale: 0,
+            duration: 1.5,
+            delay: 0.1,
+            ease: 'power2.out',
+            overwrite: 'auto',
+            onUpdate: () => displacementMap.setAttribute('scale', distortionProxy.scale)
+        });
+
+        // Parallax & 3D Tilt
+        if (!isScrolling && chapterData[currentChapter]) {
+            const data = chapterData[currentChapter];
+
+            const xPct = (mouseX / winWidth - 0.5);
+            const yPct = (mouseY / winHeight - 0.5);
+
+            if(data.bg) {
+                data.bgXTo(xPct * 30);
+                data.bgYTo(yPct * 30);
+            }
+
+            // 3D Tilt for Glass Card
+            if (data.glassCard && data.cardRect.cardX) {
+                 // Calculate distance from center of card
+                 const distX = mouseX - data.cardRect.cardX;
+                 const distY = mouseY - data.cardRect.cardY;
+
+                 const rotateY = distX / 60;
+                 const rotateX = -distY / 60;
+
+                 data.cardRotateXTo(rotateX);
+                 data.cardRotateYTo(rotateY);
+            }
+        }
+    }, { passive: true });
+
+    // Hover States
+    const interactiveElements = document.querySelectorAll('button, a, .landmark, .artisan-hand, .pullable-element');
+    interactiveElements.forEach(el => {
+        el.addEventListener('mouseenter', () => cursorOutline.classList.add('hover'));
+        el.addEventListener('mouseleave', () => cursorOutline.classList.remove('hover'));
+    });
+
+    // Magnetic Effect - Centralized resize manager
+    const magneticClearFns = [];
+    let magneticResizeTimeout;
+    window.addEventListener('resize', () => {
+        clearTimeout(magneticResizeTimeout);
+        magneticResizeTimeout = setTimeout(() => {
+            magneticClearFns.forEach(fn => fn());
+        }, 150);
+    }, { passive: true });
+
+    function magneticEffect(element) {
+        if (!element) return;
+        const xTo = gsap.quickTo(element, "x", { duration: 1, ease: "elastic.out(1, 0.4)" });
+        const yTo = gsap.quickTo(element, "y", { duration: 1, ease: "elastic.out(1, 0.4)" });
+
+        let rect = null;
+        magneticClearFns.push(() => { rect = null; });
+
+        element.addEventListener("mousemove", (e) => {
+            if (!rect) rect = element.getBoundingClientRect(); // Lazy initialization avoids layout thrashing
+            const { clientX, clientY } = e;
+            const x = clientX - (rect.left + rect.width / 2);
+            const y = clientY - (rect.top + rect.height / 2);
+            xTo(x * 0.4);
+            yTo(y * 0.4);
+        }, { passive: true });
+
+        element.addEventListener("mouseleave", () => {
+            xTo(0);
+            yTo(0);
+            rect = null; // Clear rect so it re-calculates on next hover
+        }, { passive: true });
+    }
+
+    magneticEffect(document.querySelector('.artisan-hand'));
+    magneticEffect(document.getElementById('sound-toggle'));
+    landmarks.forEach(l => magneticEffect(l));
+
+    // --- SECTION 2: UNVEILING ---
+    let unveilingAnimation;
+        let noteTimeout;
+        let fadeTimeout;
+
+    function skipUnveiling() {
+        clearTimeout(unveilingAnimation);
+            clearTimeout(noteTimeout);
+            clearTimeout(fadeTimeout);
+
+        unveiling.classList.add('hidden');
+        maruCanvas.classList.add('visible');
+        unveiling.removeEventListener('click', skipUnveiling);
+
+        // Check Hash for deep linking
+        const hash = window.location.hash.replace('#', '');
+        let targetIndex = 0;
+        if (hash) {
+             const idx = chapters.findIndex(ch => ch.id === `chapter-${hash}`);
+             if (idx !== -1) targetIndex = idx;
+        }
+
+        if (targetIndex > 0) {
+            goToChapter(targetIndex);
+        } else {
+            chapters[0].classList.add('active');
+            // Trigger initial entry for first chapter
+            const titleChars = chapters[0].querySelectorAll('.chapter-title .char');
+            const descWords = chapters[0].querySelectorAll('.chapter-description .word');
+
+            gsap.fromTo(titleChars,
+                { y: 100, opacity: 0, rotateZ: 10 },
+                { y: 0, opacity: 1, rotateZ: 0, duration: 1, stagger: 0.05, ease: 'back.out(1.7)' }
+            );
+            gsap.fromTo(descWords,
+                { y: 20, opacity: 0 },
+                { y: 0, opacity: 0.85, duration: 1, stagger: 0.02, delay: 0.5, ease: 'power2.out' }
+            );
+        }
+    }
+
+    unveiling.addEventListener('click', skipUnveiling);
+    unveilingAnimation = setTimeout(() => {
+            const word = unveiling.querySelector('.word');
+            if(word) word.style.animationPlayState = 'running';
+
+            noteTimeout = setTimeout(() => {
+            sarangiNote.volume = 0.5;
+            sarangiNote.play().catch(e => console.warn('Audio play failed', e));
+                fadeTimeout = setTimeout(skipUnveiling, 3500);
+        }, 2000);
+    }, 500);
+
+    // --- SECTION 3: SCROLLING ---
+    let lastScrollTime = 0;
+    const scrollCooldown = 1200; // Reduced to improve responsiveness
+
+    window.addEventListener('wheel', (e) => {
+        const now = Date.now();
+        if (isScrolling || now - lastScrollTime < scrollCooldown) return;
+
+        if (e.deltaY > 50 && currentChapter < numChapters - 1) {
+            goToChapter(currentChapter + 1);
+            lastScrollTime = now;
+        } else if (e.deltaY < -50 && currentChapter > 0) {
+            goToChapter(currentChapter - 1);
+            lastScrollTime = now;
+        }
+    }, { passive: true });
+
+    window.addEventListener('keydown', (e) => {
+        if (isScrolling) return;
+        if (e.key === 'ArrowRight' && currentChapter < numChapters - 1) goToChapter(currentChapter + 1);
+        else if (e.key === 'ArrowLeft' && currentChapter > 0) goToChapter(currentChapter - 1);
+    });
+
+    // Touch Navigation
+    let touchStartX = 0;
+    let touchEndX = 0;
+
+    window.addEventListener('touchstart', (e) => {
+        touchStartX = e.changedTouches[0].screenX;
+    }, { passive: true });
+
+    window.addEventListener('touchend', (e) => {
+        touchEndX = e.changedTouches[0].screenX;
+        handleSwipe();
+    }, { passive: true });
+
+    function handleSwipe() {
+        const threshold = 50;
+        if (touchEndX < touchStartX - threshold && currentChapter < numChapters - 1) {
+             goToChapter(currentChapter + 1);
+        } else if (touchEndX > touchStartX + threshold && currentChapter > 0) {
+             goToChapter(currentChapter - 1);
+        }
+    }
+
+    // --- SECTION 4: DETAIL VIEW (FLIP ANIMATION) ---
+    let lastFocusedElement = null;
+
+    function openDetailView(title, description, emoji, triggerElement) {
+        lastFocusedElement = triggerElement;
+
+        // DOM Read Phase: Calculate positions before any writes
+        let rect = null;
+        if (triggerElement) {
+            rect = triggerElement.getBoundingClientRect();
+        }
+
+        // DOM Write Phase: Update content and classes
+        detailEmoji.textContent = emoji;
+        detailTitle.textContent = title;
+        detailDescription.textContent = description;
+
+        detailView.classList.add('visible');
+
+        const content = detailView.querySelector('.detail-content');
+
+        // Simple FLIP-like scaling from center for now, or from trigger if present
+        if (rect) {
+            // We could do a complex FLIP here, but a clean scale in is often smoother/less buggy
+            // Let's stick to a premium scale-in with a slight rotation
+            gsap.fromTo(content,
+                { scale: 0.5, opacity: 0, rotateX: 20 },
+                { scale: 1, opacity: 1, rotateX: 0, duration: 0.6, ease: 'back.out(1.5)' }
+            );
+        } else {
+             gsap.fromTo(content,
+                { scale: 0.8, opacity: 0 },
+                { scale: 1, opacity: 1, duration: 0.5, ease: 'back.out(1.7)' }
+            );
+        }
+
+        closeDetailBtn.focus();
+    }
+
+    function closeDetailView() {
+        const content = detailView.querySelector('.detail-content');
+        gsap.to(content, {
+            scale: 0.9,
+            opacity: 0,
+            duration: 0.4,
+            ease: 'power3.in',
+            onComplete: () => {
+                detailView.classList.remove('visible');
+                gsap.set(content, { clearProps: "all" }); // Reset for next open
+                if (lastFocusedElement) {
+                    lastFocusedElement.focus();
+                }
+            }
+        });
+    }
+
+    landmarks.forEach(landmark => {
+        landmark.setAttribute('tabindex', '0');
+        landmark.addEventListener('click', (e) => {
+            e.preventDefault();
+            openDetailView(landmark.dataset.title, landmark.dataset.description, landmark.dataset.emoji, landmark);
+        });
+        landmark.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+                openDetailView(landmark.dataset.title, landmark.dataset.description, landmark.dataset.emoji, landmark);
+            }
+        });
+    });
+
+    closeDetailBtn.addEventListener('click', closeDetailView);
+    detailView.addEventListener('click', (e) => { if (e.target === detailView) closeDetailView(); });
+    window.addEventListener('keydown', (e) => { if (e.key === 'Escape' && detailView.classList.contains('visible')) closeDetailView(); });
+
+    // --- SECTION 5: SOUND ---
+    const soundToggle = document.getElementById('sound-toggle');
+    const soundIconOn = document.getElementById('sound-icon-on');
+    const soundIconOff = document.getElementById('sound-icon-off');
+    let isSoundOn = false;
+    const ambientSounds = chapters.map(chapter => {
+        const src = chapter.dataset.ambientSoundSrc;
+        return src ? new Audio(src) : null;
+    });
+
+    function playCurrentAmbientSound() {
+        if (isSoundOn) {
+            ambientSounds.forEach((sound, index) => {
+                if (sound) {
+                    if (index === currentChapter) {
+                        sound.loop = true;
+                        sound.play().catch(e => console.warn('Ambient play failed', e));
+                    } else {
+                        sound.pause();
+                    }
+                }
+            });
+        }
+    }
+
+    function stopAllAmbientSounds() {
+        ambientSounds.forEach(sound => { if (sound) sound.pause(); });
+    }
+
+    soundToggle.addEventListener('click', () => {
+        isSoundOn = !isSoundOn;
+        soundToggle.setAttribute('aria-pressed', isSoundOn);
+        if(isSoundOn) {
+            soundIconOn.style.display = 'block';
+            soundIconOff.style.display = 'none';
+            soundToggle.title = 'Mute';
+            playCurrentAmbientSound();
+        } else {
+            soundIconOn.style.display = 'none';
+            soundIconOff.style.display = 'block';
+            soundToggle.title = 'Listen';
+            stopAllAmbientSounds();
+        }
+    });
+
+    // --- SECTION 5.5: TIMELINE ---
+    const timeline = document.getElementById('thread-timeline');
+    timeline.addEventListener('click', (e) => {
+        const rect = timeline.getBoundingClientRect();
+        const pct = Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width));
+        const targetIndex = Math.round(pct * (numChapters - 1));
+        if (targetIndex !== currentChapter) goToChapter(targetIndex);
+    });
+
+    window.addEventListener('popstate', (e) => {
+        if (isScrolling) return;
+
+        let targetIndex = 0;
+        if (e.state && typeof e.state.index === 'number') {
+            targetIndex = e.state.index;
+        } else {
+            const hash = window.location.hash.replace('#', '');
+            if (hash) {
+                const idx = chapters.findIndex(ch => ch.id === `chapter-${hash}`);
+                if (idx !== -1) targetIndex = idx;
+            }
+        }
+
+        if (targetIndex !== currentChapter) {
+             goToChapter(targetIndex);
+        }
+    });
+
+    function goToChapter(index) {
+        if (isScrolling) return;
+        isScrolling = true;
+
+        // Update Hash
+        const city = chapters[index].id.replace('chapter-', '');
+        if (window.location.hash !== `#${city}`) {
+             history.pushState({ index: index }, '', `#${city}`);
+        }
+
+        chapters.forEach(ch => ch.classList.remove('active'));
+
+        const nextChapter = chapters[index];
+        const titleChars = nextChapter.querySelectorAll('.chapter-title .char');
+        const descWords = nextChapter.querySelectorAll('.chapter-description .word');
+
+        gsap.set(titleChars, { y: 100, opacity: 0, rotateZ: 10, skewX: 20, filter: 'blur(10px)' });
+        gsap.set(descWords, { y: 20, opacity: 0 });
+
+        // Transition: Silky Distortion
+        const displacement = document.querySelector('#distortionFilter feDisplacementMap');
+        gsap.to(displacement, {
+            attr: { scale: 300 }, // Higher scale for more drama
+            duration: 1.0,
+            ease: 'power2.inOut',
+            onComplete: () => {
+                gsap.to(displacement, {
+                    attr: { scale: 0 },
+                    duration: 1.2,
+                    ease: 'power2.out'
+                });
+            }
+        });
+
+        gsap.to(container, {
+            x: -index * winWidth,
+            duration: 1.8, // Slower, more majestic
+            ease: 'power4.inOut',
+            onComplete: () => {
+                isScrolling = false;
+                currentChapter = index;
+                chapters[currentChapter].classList.add('active');
+
+                // Update rects after moving
+                updateRects();
+
+                // Cinematic Text Entry
+                gsap.to(titleChars, {
+                    y: 0,
+                    opacity: 1,
+                    rotateZ: 0,
+                    skewX: 0,
+                    filter: 'blur(0px)',
+                    duration: 1.2,
+                    stagger: 0.03,
+                    ease: 'back.out(1.2)'
+                });
+
+                gsap.to(descWords, {
+                    y: 0,
+                    opacity: 0.85,
+                    duration: 1,
+                    stagger: 0.01,
+                    delay: 0.3,
+                    ease: 'power2.out'
+                });
+                playCurrentAmbientSound();
+            }
+        });
+
+        const newColor = chapters[index].dataset.accentColor;
+        gsap.to(':root', { '--accent-color': newColor, duration: 1.5, ease: 'power2.out' });
+
+        const progress = (index / (numChapters - 1)) * 100;
+        gsap.to('#thread-progress', { width: `${progress}%`, duration: 1.8, ease: 'power4.inOut' });
+    }
+
+    // --- SECTION 6: CONSTELLATION DUST SYSTEM ---
+    class DustSystem {
+        constructor() {
+            this.canvas = document.getElementById('dust-canvas');
+            this.ctx = this.canvas.getContext('2d');
+            this.particles = [];
+            this.numParticles = 60; // Fewer but smarter particles
+                this.isActive = true;
+            this.PI2 = Math.PI * 2;
+            this.boundAnimate = this.animate.bind(this);
+            this.resize();
+
+            let resizeTimeout;
+            window.addEventListener('resize', () => {
+                clearTimeout(resizeTimeout);
+                resizeTimeout = setTimeout(() => this.resize(), 150);
+            }, { passive: true });
+                document.addEventListener('visibilitychange', () => {
+                    this.isActive = !document.hidden;
+                    if (this.isActive) this.boundAnimate();
+                });
+
+            for(let i = 0; i < this.numParticles; i++) this.particles.push(this.createParticle());
+            this.boundAnimate();
+        }
+
+        resize() {
+            this.width = this.canvas.width = window.innerWidth;
+            this.height = this.canvas.height = window.innerHeight;
+            this.halfWidth = this.width * 0.5;
+
+            // Set canvas styles here to avoid setting them on every frame
+            this.ctx.lineWidth = 0.5;
+            this.ctx.strokeStyle = '#fff';
+            this.ctx.fillStyle = '#fff';
+        }
+
+        createParticle() {
+            const alpha = Math.random() * 0.5 + 0.2;
+            return {
+                x: Math.random() * this.width,
+                y: Math.random() * this.height,
+                vx: (Math.random() - 0.5) * 0.3,
+                vy: (Math.random() - 0.5) * 0.3,
+                size: Math.random() * 2 + 1,
+                alpha: alpha
+            };
+        }
+
+        animate() {
+                if (!this.isActive) return;
+
+            this.ctx.clearRect(0, 0, this.width, this.height);
+            const mX = mouseX;
+            const mY = mouseY;
+            const wind = (mX - this.halfWidth) * 0.00005;
+
+            for (let i = 0; i < this.particles.length; i++) {
+                const p = this.particles[i];
+                p.x += p.vx + wind;
+                p.y += p.vy;
+
+                // Mouse Interaction (Repulsion)
+                const dx = mX - p.x;
+                const dy = mY - p.y;
+                const distSq = dx * dx + dy * dy;
+
+                if (distSq < 40000) { // 200 * 200
+                    const force = (40000 - distSq) * 0.000025; // / 40000
+                    // Scale factor down to roughly match the original feel, which used
+                    // Math.cos(angle) * force * 0.02. We're now multiplying by dx/dy directly,
+                    // which scales with distance. Dividing by roughly 10-15 restores the original strength.
+                    const factor = force * 0.00015;
+                    p.vx -= dx * factor;
+                    p.vy -= dy * factor;
+                }
+
+                // Friction
+                p.vx *= 0.99;
+                p.vy *= 0.99;
+
+                // Boundaries
+                if (p.x < 0) p.x = this.width;
+                if (p.x > this.width) p.x = 0;
+                if (p.y < 0) p.y = this.height;
+                if (p.y > this.height) p.y = 0;
+
+                // Draw Particle
+                this.ctx.globalAlpha = p.alpha;
+                this.ctx.beginPath();
+                this.ctx.arc(p.x, p.y, p.size, 0, this.PI2);
+                this.ctx.fill();
+
+                // Draw Connections
+                for (let j = i + 1; j < this.particles.length; j++) {
+                    const p2 = this.particles[j];
+                    const dx2 = p.x - p2.x;
+                    const dy2 = p.y - p2.y;
+                    const distSq2 = dx2 * dx2 + dy2 * dy2;
+
+                    if (distSq2 < 14400) { // 120 * 120
+                        this.ctx.globalAlpha = 0.15 * (1 - distSq2 * 0.00006944); // / 14400
+                        this.ctx.beginPath();
+                        this.ctx.moveTo(p.x, p.y);
+                        this.ctx.lineTo(p2.x, p2.y);
+                        this.ctx.stroke();
+                    }
+                }
+            }
+            this.ctx.globalAlpha = 1.0;
+            requestAnimationFrame(this.boundAnimate);
+        }
+    }
+    if (!prefersReducedMotion) {
+        new DustSystem();
+    }
+});

@@ -1,20 +1,30 @@
-# RajasthaniOdyssey
+# Maru: six Rajasthan worlds
 
-Maru (मरु) — an immersive, scroll-driven journey through six chapters of Rajasthan: Jaipur, Jodhpur, Jaisalmer, Udaipur, the Thar and Pushkar. A static site (HTML/CSS/JS with GSAP), served via GitHub Pages.
+Six freely orbitable illustrations: Jaipur, Jodhpur, Jaisalmer, Udaipur, the Thar and Pushkar. Local 3D geometry and media, no API keys or paid services. This is an illustrated companion, not a measured reconstruction or navigation map.
 
-All imagery and sound are vendored in `assets/` so the experience never depends on third-party hosts.
+Node22+, `npm ci`, `npm run dev`; `npm run build` produces `dist` for Cloudflare Pages. Production branch main, free GitHub-connected deployment. Inherited live URL retained unchanged: https://rajeshceg3.github.io/RajasthaniOdyssey/ . Original files and prose are preserved in `legacy/`; original media remains in `public/assets/`.
 
-## Asset credits
+## Explore
 
-Photography (`assets/img/`): Unsplash photographers, [Unsplash License](https://unsplash.com/license).
+Drag or arrow keys to orbit; pinch/scroll to zoom; Home or Reset view restores the composed camera. Motion animates water only, independently of sound. Reduced-motion preference starts paused. Sound starts off and only creates its audio context on opt-in. Six inherited local recordings play quietly; scene changes replace the recording. Sound off stops and unloads audio and closes its context. The Pushkar recording is from Deshnoke, explicitly labelled, not claimed as Pushkar field audio.
 
-Audio and video (`assets/audio/`, `assets/video/`) via Wikimedia Commons. CC BY items require attribution (given here); CC BY-SA items remain under their original ShareAlike licenses, and the two trimmed excerpts noted below are likewise redistributed under the same CC BY-SA 4.0 / CC BY 4.0 terms:
+All18 landmark introductions remain, now with plain source-aware descriptions. The photo/story view preserves the six inherited photographs, but original photographer names were not recorded: photos are labelled unverified, not offered as landmark documentation. Reflections are new writing. Guide/credits includes the inherited pottery excerpt, explicitly from Assam rather than Rajasthan, with native video controls and no autoplay. Browser-local explored count persists. Original scroll timeline becomes a semantic six-place picker and Previous/Next, without swipe hijacking or a long intro.
 
-- [Sarangi Music by Balaram Gandarbha](https://commons.wikimedia.org/wiki/File:Sarangi_Music_by_Balaram_Gandarbha.ogg) — Krish Dulal, [CC BY-SA 3.0](https://creativecommons.org/licenses/by-sa/3.0/)
-- [Snakecharmer, Jaipur](https://commons.wikimedia.org/wiki/File:Samuel_Corwin_-_05_-_Snakecharmer_Jaipur.ogg) — Samuel Corwin, [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/)
-- [Chitiya Kalaiya sung by three children, Jodhpur](https://commons.wikimedia.org/wiki/File:Samuel_Corwin_-_04_-_Chitiya_Kalaiya_Sung_by_Three_Children_Jodhpur.ogg) — Samuel Corwin, [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/)
-- [Musicians on a stopped train between Jodhpur and Jaisalmer](https://commons.wikimedia.org/wiki/File:Samuel_Corwin_-_14_-_Group_of_Musicians_Playing_On_Stopped_Train_Between_Jodhpur_and_Jaisalmer.ogg) — Samuel Corwin, [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/)
-- [Savannah Nightjar, Udaipur](https://commons.wikimedia.org/wiki/File:20190214-SavannahNightjarUdaipur.ogg) — Sarusscape, [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/)
-- [Up Downs Coming Going, Great Thar Desert](https://commons.wikimedia.org/wiki/File:Samuel_Corwin_-_17_-_Up_Downs_Coming_Going_Great_Thar_Desert.ogg) — Samuel Corwin, [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/). Excerpt: speech-free musical portion (0:31-2:57) with short fades.
-- [Harmonium and drum at the Karni Mata Temple, Deshnoke](https://commons.wikimedia.org/wiki/File:Samuel_Corwin_-_06_-_Harmonium_and_Drum_at_the_Karni_Mata_Temple_Deshnoke.ogg) — Samuel Corwin, [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/)
-- [Making of Terracotta in Asharikandi Village](https://commons.wikimedia.org/wiki/File:Making_of_Terracotta_in_Asharikandi_Village,_Dhubri,_Assam.webm) — Nayan j Nath, [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/). Excerpt: 18s trimmed, rescaled and re-encoded, audio removed.
+## Sources and media
+
+Official place background, checked November11 2026:
+- https://www.tourism.rajasthan.gov.in/jaipur.html
+- https://www.tourism.rajasthan.gov.in/jodhpur.html
+- https://www.tourism.rajasthan.gov.in/jaisalmer.html
+- https://www.tourism.rajasthan.gov.in/udaipur.html
+- https://www.tourism.rajasthan.gov.in/pushkar.html
+
+Full inherited credits and licence links: [public/asset-credits.md](public/asset-credits.md). Audio/video redistributed unchanged, including the inherited Thar and pottery excerpts. Their attribution and modifications are listed there and in the app's Guide & credits. Source files' original licences remain applicable.
+
+## Executed verification
+
+`npm test` uses WIDTH (default390) and optional CHROME. Six scenes × two UI themes × two motion settings =24 states per width. 320,390 and1440 local matrices pass. Tests cover real drag, arrow keys, Home/Reset, all18 introductions, photo loads, Guide & credits, modal Escape, local explored-count reload, no horizontal overflow, visible UI font floor14px and silent start. CI runs390/1440 on push and PR with build and high-severity audit.
+
+Rendered UI contrast:614 visible text samples across44 screenshots, both themes at390/1440, minimum8.87:1 from glyph masks and their actual underlying backdrop. Scene geometry and photographic text are excluded. `verification/contrast.json` stores values; capture and measurement scripts are included. Pillow and numpy are needed for measurement.
+
+Actual post-gain browser output from all six recordings was captured, four seconds each. Silent-before-opt-in, stop/unload/context-off and replay verified. Human listening remains unsigned; no listened-quality claim is made. Browser errors and UI matrices are recorded under ignored `verification/output/`; audio and contrast metadata are committed.
