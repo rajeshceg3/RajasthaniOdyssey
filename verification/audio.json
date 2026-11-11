@@ -1,0 +1,44 @@
+{
+  "silentStart": true,
+  "offAndReplay": true,
+  "tracks": [
+    {
+      "src": "http://localhost:8840/assets/audio/jaipur.ogg",
+      "duration": 42.195283,
+      "time": 4.130249,
+      "volume": 1
+    },
+    {
+      "src": "http://localhost:8840/assets/audio/jodhpur.ogg",
+      "duration": 32.562177,
+      "time": 4.121542,
+      "volume": 1
+    },
+    {
+      "src": "http://localhost:8840/assets/audio/jaisalmer.ogg",
+      "duration": 83.288594,
+      "time": 4.130249,
+      "volume": 1
+    },
+    {
+      "src": "http://localhost:8840/assets/audio/udaipur.ogg",
+      "duration": 11.898458,
+      "time": 4.117653,
+      "volume": 1
+    },
+    {
+      "src": "http://localhost:8840/assets/audio/thar.ogg",
+      "duration": 103.778435,
+      "time": 4.130249,
+      "volume": 1
+    },
+    {
+      "src": "http://localhost:8840/assets/audio/pushkar.ogg",
+      "duration": 187.496667,
+      "time": 4.121542,
+      "volume": 1
+    }
+  ],
+  "capture": "actual Web Audio output after volume gain",
+  "humanListening": false
+}
