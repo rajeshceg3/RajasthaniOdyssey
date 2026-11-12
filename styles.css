@@ -47,3 +47,21 @@ button:disabled{box-shadow:none!important}
  .chrome-hint{right:14px;top:12px}
 }
 @media(prefers-reduced-motion:reduce){.chrome,button,.token{transition:none}}
+
+/* Primary action stays above the fold in the mobile story sheet */
+@media(max-width:768px){
+ #story{max-height:min(360px,52dvh);padding:14px 16px}
+ canvas{inset:0 0 min(360px,52dvh);height:calc(100% - min(360px,52dvh))}
+ .world-note{bottom:calc(min(360px,52dvh) + 10px)}
+ h2{margin:6px 0 6px}
+ #detail{margin-bottom:8px;line-height:1.45}
+ .landmark-tokens{margin:6px 0 2px}
+ #discover{margin:6px 0 0}
+ .story-actions,.scene-nav{margin:8px 0}
+}
+@media(max-width:768px){
+ .landmark-tokens{flex-wrap:nowrap;overflow-x:auto;scroll-snap-type:x proximity;padding:2px 2px 6px;scrollbar-width:none}
+ .landmark-tokens .token{flex:none;scroll-snap-align:start}
+ #story label:has(#landmark){display:block}
+ #story label:has(#landmark)>.vh{position:absolute}
+}

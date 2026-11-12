@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "vite --host 0.0.0.0",
     "build": "vite build",
-    "test": "node verification/check.cjs && node verification/audio-structure.cjs && node verification/quiet.cjs",
+    "test": "node verification/check.cjs && node verification/audio-structure.cjs && node verification/quiet.cjs && node verification/fold.cjs",
     "audio:preview": "node scripts/render-preview.mjs"
   },
   "dependencies": {

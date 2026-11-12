@@ -37,6 +37,8 @@ export function initChrome() {
   }
   const chap = tokenStrip(document.getElementById('chapter'), 'chapter-tokens', 'Choose a place');
   chap.build();
+  const lmLabel = document.querySelector('label:has(#landmark)');
+  if (lmLabel) [...lmLabel.childNodes].forEach(n => { if (n.nodeType === 3 && n.textContent.trim()) { const s = document.createElement('span'); s.className = 'vh'; s.textContent = n.textContent; n.replaceWith(s); } });
   const lm = tokenStrip(document.getElementById('landmark'), 'landmark-tokens', 'Look closer');
   lm.build();
   // render() sets chapter value without an event; follow the story counter.
