@@ -65,3 +65,28 @@ button:disabled{box-shadow:none!important}
  #story label:has(#landmark){display:block}
  #story label:has(#landmark)>.vh{position:absolute}
 }
+
+/* One primary action on the scene; everything else opens by invitation. */
+#explore-controls{pointer-events:auto;margin-left:auto;min-height:46px}
+#explore-panel{width:min(560px,calc(100% - 28px));padding:20px;overscroll-behavior:contain}
+.explore-heading{display:flex;align-items:center;justify-content:space-between;gap:16px}
+.explore-heading h2{margin:0;font-size:28px}
+#explore-panel section{margin-top:20px;border-top:1px solid var(--line);padding-top:16px}
+#explore-panel h3{font-size:21px;margin:0 0 12px}
+#explore-panel .tokens{flex-wrap:wrap;overflow:visible;max-width:100%;padding:0;gap:10px}
+#explore-panel .token{flex:0 1 auto;min-height:46px}
+#explore-panel nav{display:flex;flex-wrap:wrap;gap:10px}
+#explore-panel nav button{min-height:46px}
+#explore-panel .world-note{position:static;background:none;color:inherit;padding:0;box-shadow:none;margin:14px 0 0;font-size:14px;line-height:1.5}
+#explore-panel .disclaimer{margin-bottom:0}
+#story #discover{min-height:46px;background:var(--button);color:var(--buttonink)}
+@media(max-width:768px){
+ header{justify-content:space-between}
+ #story{max-height:46dvh;padding:14px 16px 18px}
+ #story h2{font-size:25px}
+ #story #detail{margin:8px 0 12px}
+ #story #discover{margin:0}
+ canvas{inset:0 0 var(--story-height,240px);height:calc(100% - var(--story-height,240px))}
+}
+
+.explore-heading{position:sticky;top:-20px;background:var(--paper);z-index:2;padding:12px 0}
